@@ -638,7 +638,7 @@ function renderDash() {
   if(elPend){const tot=DB.filter(p=>p.estado==='abierto'||p.estado==='proceso').reduce((s,p)=>s+Math.max(0,p.chapasEntrada-(p.chapasOk+p.chapasDevolucion+p.chapasChatarra)),0);elPend.textContent=tot;}
   const totalPend = DB.filter(p=>p.estado==='abierto'||p.estado==='proceso')
     .reduce((s,p)=>s+Math.max(0,p.chapasEntrada-(p.chapasOk+p.chapasDevolucion+p.chapasChatarra)),0);
-  const elPend = g('st-pend'); if(elPend) elPend.textContent=totalPend;
+  if(elPend) elPend.textContent=totalPend;
   const tb=g('dash-tb');
   if(!DB.length){tb.innerHTML=`<tr><td colspan="9"><div class="empty"><i class="ti ti-stack-2"></i><p>${isAdmin?'Crea el primer palet con "Nuevo palet"':'No hay palets registrados aún'}</p></div></td></tr>`;return}
   tb.innerHTML=DB.slice(0,12).map(p=>{
