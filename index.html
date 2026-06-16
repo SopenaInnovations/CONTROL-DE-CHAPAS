@@ -635,7 +635,7 @@ function renderDash() {
   g('st-ok').textContent=DB.filter(p=>p.estado==='cerrado_ok').length;
   g('st-d').textContent=DB.filter(p=>p.estado==='cerrado_diff').length;
   const elPend=g('st-pend');
-  if(elPend){const tot=DB.filter(p=>p.estado==='abierto'||p.estado==='proceso').reduce((s,p)=>s+Math.max(0,p.chapasEntrada-(p.chapasOk+p.chapasDevolucion+p.chapasChatarra)),0);elPend.textContent=tot;}
+ 
   const totalPend = DB.filter(p=>p.estado==='abierto'||p.estado==='proceso')
     .reduce((s,p)=>s+Math.max(0,p.chapasEntrada-(p.chapasOk+p.chapasDevolucion+p.chapasChatarra)),0);
   if(elPend) elPend.textContent=totalPend;
