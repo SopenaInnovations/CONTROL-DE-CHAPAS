@@ -1,0 +1,2775 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="version" content="v10.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grupo Sopena — Control de Chapas</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<style>
+:root{
+  --sp-navy:#1a3a6b;--sp-blue:#2563b0;--sp-blue-mid:#3b82d4;
+  --sp-blue-light:#dbeafe;--sp-blue-xlight:#eff6ff;--sp-accent:#e8f0fb;
+  --sp-white:#ffffff;--sp-gray:#f4f6fb;--sp-border:#c7d8f0;
+  --sp-text:#1a2540;--sp-muted:#5a7099;
+  --sp-ok:#15803d;--sp-ok-bg:#dcfce7;
+  --sp-warn:#b45309;--sp-warn-bg:#fef3c7;
+  --sp-danger:#b91c1c;--sp-danger-bg:#fee2e2;
+  --sp-dev:#c2410c;--sp-dev-bg:#ffedd5;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--sp-gray);color:var(--sp-text);min-height:100vh}
+
+/* LOGIN */
+#login-screen{position:fixed;inset:0;background:linear-gradient(135deg,var(--sp-navy) 0%,var(--sp-blue) 100%);display:flex;align-items:center;justify-content:center;z-index:9999;padding:1rem}
+#login-screen.hide{display:none}
+.login-box{background:#fff;border-radius:16px;padding:2.5rem 2rem;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,0.3)}
+.login-logo{text-align:center;margin-bottom:1.5rem}
+.login-logo-icon{width:64px;height:64px;background:var(--sp-navy);border-radius:14px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px}
+.login-logo-icon svg{width:40px;height:40px}
+.login-brand{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:var(--sp-navy)}
+.login-sub{font-size:11px;color:var(--sp-muted);letter-spacing:1px;text-transform:uppercase;margin-top:3px}
+.login-title{font-size:14px;font-weight:600;color:var(--sp-text);margin-bottom:1.25rem;text-align:center}
+.lfield{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.lfield label{font-size:11px;font-weight:600;color:var(--sp-blue);text-transform:uppercase;letter-spacing:0.5px}
+.lfield input{padding:10px 12px;border-radius:8px;border:1.5px solid var(--sp-border);font-size:13px;color:var(--sp-text);font-family:'Inter',sans-serif;transition:border 0.15s}
+.lfield input:focus{outline:none;border-color:var(--sp-blue)}
+.login-btn{width:100%;padding:11px;background:var(--sp-blue);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;margin-top:6px;transition:background 0.15s}
+.login-btn:hover{background:var(--sp-navy)}
+.login-err{background:#fee2e2;color:#b91c1c;border-radius:7px;padding:8px 12px;font-size:12px;font-weight:500;margin-top:10px;display:none;text-align:center}
+.login-err.show{display:block}
+
+/* LOADING */
+#loading-screen{position:fixed;inset:0;background:var(--sp-navy);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9998}
+#loading-screen.hide{display:none}
+.loading-bar{width:200px;height:3px;background:#ffffff20;border-radius:2px;overflow:hidden;margin-top:20px}
+.loading-bar-fill{height:100%;background:var(--sp-blue-mid);border-radius:2px;animation:loadbar 1.2s ease-in-out infinite}
+@keyframes loadbar{0%{width:0%;margin-left:0}50%{width:60%;margin-left:20%}100%{width:0%;margin-left:100%}}
+
+/* SYNC */
+.sync-dot{width:8px;height:8px;border-radius:50%;background:#4ade80;display:inline-block;margin-right:5px;animation:pulse-ok 2s infinite}
+.sync-dot.syncing{background:#fbbf24;animation:pulse-sync 0.6s infinite}
+.sync-dot.error{background:#f87171;animation:none}
+@keyframes pulse-ok{0%,100%{opacity:1}50%{opacity:0.4}}
+@keyframes pulse-sync{0%,100%{opacity:1}50%{opacity:0.2}}
+
+/* TOPBAR */
+.topbar{background:var(--sp-navy);padding:0 1.25rem;display:flex;align-items:center;justify-content:space-between;height:56px;border-bottom:3px solid var(--sp-blue-mid);position:sticky;top:0;z-index:100}
+.brand{display:flex;align-items:center;gap:12px}
+.logo-box{width:38px;height:38px;border-radius:8px;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.brand-name{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;color:#fff}
+.brand-sub{font-size:10px;color:var(--sp-blue-mid);letter-spacing:1.2px;text-transform:uppercase;margin-top:1px}
+.brand-sep{width:1px;height:26px;background:#ffffff20;margin:0 8px}
+.brand-app{font-size:11px;color:#ffffff60}
+.topright{display:flex;align-items:center;gap:14px}
+.user-chip{display:flex;align-items:center;gap:7px;background:#ffffff15;border-radius:20px;padding:4px 12px 4px 6px}
+.user-av{width:24px;height:24px;border-radius:50%;background:var(--sp-blue-mid);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff}
+.user-name{font-size:11px;color:#ffffffcc;font-weight:500}
+.user-role{font-size:9px;color:#ffffff60;margin-left:2px}
+.logout-btn{background:transparent;border:1px solid #ffffff30;color:#ffffff80;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s}
+.logout-btn:hover{background:#ffffff15;color:#fff}
+.sync-wrap{display:flex;align-items:center}
+.sync-label{font-size:10px;color:#ffffff60}
+
+/* NAV */
+.navrow{background:var(--sp-navy);border-bottom:1px solid #ffffff12;padding:0 1.25rem;display:flex;position:sticky;top:56px;z-index:99;overflow-x:auto}
+.ntab{padding:11px 15px;border:none;background:transparent;font-size:11px;font-weight:500;color:#ffffff50;cursor:pointer;border-bottom:2px solid transparent;letter-spacing:0.4px;display:flex;align-items:center;gap:5px;transition:all 0.15s;text-transform:uppercase;font-family:'Inter',sans-serif;white-space:nowrap;flex-shrink:0}
+.ntab.active{color:#fff;border-bottom-color:var(--sp-blue-mid)}
+.ntab:hover:not(.active){color:#ffffffaa}
+
+/* PAGES */
+.page{display:none;padding:1.25rem;max-width:1400px;margin:0 auto}
+.page.on{display:block}
+.ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem;flex-wrap:wrap;gap:8px}
+.ptitle{font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:700;color:var(--sp-navy)}
+.psub{font-size:11px;color:var(--sp-muted);margin-top:2px}
+
+/* STATS */
+.sgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:1.1rem}
+.sc{background:var(--sp-white);border-radius:10px;border:1px solid var(--sp-border);padding:12px 14px}
+.sc-lbl{font-size:10px;font-weight:600;color:var(--sp-muted);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:6px}
+.sc-val{font-size:28px;font-weight:700;font-family:'Space Grotesk',sans-serif;line-height:1;color:var(--sp-navy)}
+.sc-ft{font-size:10px;color:var(--sp-muted);margin-top:4px}
+.cok{color:var(--sp-ok)!important}.cwarn{color:var(--sp-warn)!important}.cdanger{color:var(--sp-danger)!important}.cblue{color:var(--sp-blue)!important}
+
+/* CARD */
+.card{background:var(--sp-white);border-radius:10px;border:1px solid var(--sp-border);overflow:hidden;margin-bottom:1rem}
+.card-hd{padding:10px 14px;border-bottom:1px solid var(--sp-border);background:var(--sp-accent);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:10px;font-weight:600;color:var(--sp-blue);text-transform:uppercase;letter-spacing:0.7px}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:7px;border:1px solid var(--sp-border);font-size:11px;font-weight:500;cursor:pointer;background:var(--sp-white);color:var(--sp-text);font-family:'Inter',sans-serif;transition:all 0.15s}
+.btn:hover{background:var(--sp-accent);border-color:var(--sp-blue)}
+.btn:active{transform:scale(0.97)}
+.btn-primary{background:var(--sp-blue);color:#fff;border-color:var(--sp-blue)}
+.btn-primary:hover{background:var(--sp-navy);border-color:var(--sp-navy)}
+.btn-sm{padding:4px 8px;font-size:11px;border-radius:6px}
+.btn-ico{padding:5px 7px;border-radius:6px}
+.bdanger{color:var(--sp-danger);border-color:#fca5a5;background:transparent}
+.bdanger:hover{background:var(--sp-danger-bg)}
+.bsuccess{color:var(--sp-ok);border-color:#86efac;background:transparent}
+.bsuccess:hover{background:var(--sp-ok-bg)}
+.binfo{color:var(--sp-blue);border-color:var(--sp-blue-mid);background:transparent}
+.binfo:hover{background:var(--sp-blue-light)}
+
+/* FILTERS */
+.frow{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap}
+.frow input,.frow select{flex:1;min-width:140px;font-size:11px;padding:7px 10px;border-radius:7px;border:1px solid var(--sp-border);background:var(--sp-white);color:var(--sp-text);font-family:'Inter',sans-serif}
+
+/* TABLE */
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{text-align:left;padding:9px 11px;font-size:10px;font-weight:600;color:var(--sp-blue);text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--sp-border);white-space:nowrap;background:var(--sp-accent)}
+td{padding:9px 11px;border-bottom:1px solid #e8eff8;color:var(--sp-text);vertical-align:middle;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--sp-blue-xlight)}
+.mono{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:600;color:var(--sp-navy)}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;white-space:nowrap}
+.bopen{background:#dbeafe;color:#1d4ed8}.bprog{background:var(--sp-warn-bg);color:var(--sp-warn)}.bok{background:var(--sp-ok-bg);color:var(--sp-ok)}.bdiff2{background:var(--sp-danger-bg);color:var(--sp-danger)}
+.dot{width:5px;height:5px;border-radius:50%;display:inline-block}
+.dblue{background:#2563b0}.dprog{background:#d97706}.dok{background:#16a34a}.ddiff{background:#dc2626}
+
+/* PROGRESS */
+.pbar{width:64px;height:5px;background:#dbeafe;border-radius:3px;display:inline-block;overflow:hidden;border:1px solid var(--sp-border);vertical-align:middle}
+.pbar-f{height:100%;border-radius:3px;background:var(--sp-blue)}
+
+/* MODALS */
+.overlay{display:none;background:rgba(10,20,50,0.55);min-height:500px;align-items:flex-start;justify-content:center;padding:2rem 1rem;position:fixed;inset:0;z-index:200;overflow-y:auto}
+.overlay.on{display:flex}
+.modal{background:var(--sp-white);border-radius:12px;border:1px solid var(--sp-border);width:100%;max-width:530px}
+.mhd{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--sp-border);background:var(--sp-accent)}
+.mtitle{font-size:13px;font-weight:600;display:flex;align-items:center;gap:7px;color:var(--sp-navy)}
+.mbody{padding:16px;display:flex;flex-direction:column;gap:12px}
+.mfoot{padding:13px 16px;border-top:1px solid var(--sp-border);display:flex;justify-content:flex-end;gap:8px;background:var(--sp-gray)}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:10px;font-weight:600;color:var(--sp-blue);text-transform:uppercase;letter-spacing:0.5px}
+.field input,.field select,.field textarea{padding:8px 10px;border-radius:7px;border:1px solid var(--sp-border);background:var(--sp-white);font-size:12px;color:var(--sp-text);font-family:'Inter',sans-serif}
+.field input:focus,.field select:focus{outline:2px solid var(--sp-blue-mid);outline-offset:1px;border-color:var(--sp-blue)}
+.fgrid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* OPERARIO */
+.op-card{background:var(--sp-white);border-radius:10px;border:1px solid var(--sp-border);overflow:hidden;margin-bottom:1rem}
+.op-hd{background:linear-gradient(135deg,var(--sp-navy) 0%,var(--sp-blue) 100%);padding:13px 14px;display:flex;align-items:flex-start;justify-content:space-between}
+.op-num{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:#fff}
+.op-meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:5px}
+.op-chip{font-size:10px;color:rgba(255,255,255,0.55)}.op-chip b{color:rgba(255,255,255,0.9);font-weight:600}
+.op-ent-lbl{font-size:9px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.6px;text-align:right}
+.op-ent-val{font-size:24px;font-weight:700;color:#fff;font-family:'Space Grotesk',sans-serif;text-align:right}
+.op-body{padding:14px}
+.counters{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.ctr{background:var(--sp-gray);border-radius:8px;padding:10px 8px;border:1px solid var(--sp-border);text-align:center}
+.ctr-lbl{font-size:9px;color:var(--sp-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:7px;font-weight:600}
+.ctr-input{width:100%;text-align:center;font-size:24px;font-weight:700;font-family:'Space Grotesk',sans-serif;border:1.5px solid var(--sp-border);border-radius:7px;padding:5px 2px;background:var(--sp-white);outline:none;color:var(--sp-navy)}
+.ctr-input:focus{border-color:var(--sp-blue);outline:2px solid var(--sp-blue-light);outline-offset:1px}
+.inp-ok{color:var(--sp-ok)!important}.inp-dev{color:var(--sp-dev)!important}.inp-chat{color:var(--sp-danger)!important}
+.op-stats{display:flex;justify-content:space-between;font-size:11px;color:var(--sp-muted);margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--sp-border)}
+.cierre-wrap{display:flex;align-items:flex-end;gap:8px}
+.cierre-wrap .field{flex:1}
+.cres{padding:9px 12px;border-radius:7px;font-size:11px;font-weight:600;margin-top:8px;display:none}
+.cres.ok{background:var(--sp-ok-bg);color:var(--sp-ok);border:1px solid #86efac;display:flex;align-items:center;gap:6px}
+.cres.diff{background:var(--sp-danger-bg);color:var(--sp-danger);border:1px solid #fca5a5;display:flex;align-items:center;gap:6px}
+
+/* TIEMPO / CONTROL HORARIO */
+.tiempo-section{margin-top:12px;padding:12px;background:var(--sp-gray);border-radius:8px;border:1px solid var(--sp-border)}
+.tiempo-title{font-size:10px;font-weight:600;color:var(--sp-blue);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:10px;display:flex;align-items:center;gap:5px}
+.tiempo-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px}
+.tiempo-grid-desc{grid-template-columns:1fr 1fr 2fr}
+@media (max-width: 640px){
+  .tiempo-grid,.tiempo-grid-desc{grid-template-columns:1fr 1fr!important}
+  .counters{grid-template-columns:1fr!important}
+  .fgrid2{grid-template-columns:1fr!important}
+  .cierre-wrap{flex-direction:column;align-items:stretch}
+  .row3{grid-template-columns:1fr!important}
+  .tiempos-filter{flex-direction:column}
+  .tiempos-filter input,.tiempos-filter select{min-width:0;width:100%}
+}
+.tiempo-field{display:flex;flex-direction:column;gap:4px}
+.tiempo-field label{font-size:9px;font-weight:600;color:var(--sp-muted);text-transform:uppercase;letter-spacing:0.5px}
+.tiempo-field input,.tiempo-field select{padding:6px 8px;border-radius:6px;border:1px solid var(--sp-border);background:var(--sp-white);font-size:12px;color:var(--sp-text);font-family:'Inter',sans-serif}
+.tiempo-field input:focus{outline:2px solid var(--sp-blue-mid);border-color:var(--sp-blue);outline-offset:1px}
+.tiempo-resultado{margin-top:8px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.tiempo-horas{font-size:13px;font-weight:600;color:var(--sp-navy);display:flex;align-items:center;gap:5px}
+.tiempo-registros{margin-top:10px;border-top:1px solid var(--sp-border);padding-top:8px}
+.tiempo-reg-title{font-size:10px;font-weight:600;color:var(--sp-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
+.reg-row{display:flex;align-items:center;justify-content:space-between;padding:5px 8px;background:var(--sp-white);border-radius:6px;margin-bottom:4px;border:1px solid var(--sp-border);font-size:11px;gap:6px;flex-wrap:wrap}
+.reg-operario{font-weight:600;color:var(--sp-navy)}
+.reg-horas{color:var(--sp-blue);font-weight:600}
+.reg-fecha{color:var(--sp-muted);font-size:10px}
+.descanso-tag{background:#fef3c7;color:#b45309;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:600}
+.total-horas-bar{background:var(--sp-blue);color:#fff;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;display:inline-flex;align-items:center;gap:5px}
+
+/* ═══════════════════════════════════════════
+   CONTROL DE TIEMPOS — página y componentes
+═══════════════════════════════════════════ */
+.tiempos-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:1rem}
+.ts-card{background:var(--sp-white);border-radius:10px;border:1px solid var(--sp-border);padding:12px 14px}
+.ts-lbl{font-size:10px;font-weight:600;color:var(--sp-muted);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:5px}
+.ts-val{font-size:24px;font-weight:700;font-family:'Space Grotesk',sans-serif;color:var(--sp-navy)}
+.ts-sub{font-size:10px;color:var(--sp-muted);margin-top:3px}
+
+.tiempos-filter{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap}
+.tiempos-filter input,.tiempos-filter select{flex:1;min-width:130px;font-size:11px;padding:7px 10px;border-radius:7px;border:1px solid var(--sp-border);background:var(--sp-white);color:var(--sp-text);font-family:'Inter',sans-serif}
+
+.tiempos-table-wrap{overflow-x:auto}
+.op-tag{display:inline-flex;align-items:center;gap:4px;background:var(--sp-blue-light);color:var(--sp-blue);padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600}
+
+/* Monitor en vivo — tarjetas por operario */
+.monitor-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:1.25rem}
+.mon-card{background:var(--sp-white);border-radius:10px;border:1px solid var(--sp-border);overflow:hidden;transition:border-color 0.2s}
+.mon-card.activo{border-color:#86efac}
+.mon-card.pausado{border-color:#fcd34d}
+.mon-hd{background:linear-gradient(135deg,var(--sp-navy),var(--sp-blue));padding:11px 14px;display:flex;align-items:center;justify-content:space-between}
+.mon-av{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;font-family:'Space Grotesk',sans-serif;flex-shrink:0}
+.mon-nombre{font-size:13px;font-weight:700;color:#fff}
+.mon-codigo{font-size:10px;color:rgba(255,255,255,0.6)}
+.mon-body{padding:12px 14px}
+.mon-timer{font-size:28px;font-weight:700;font-family:'Space Grotesk',sans-serif;letter-spacing:2px;color:var(--sp-navy);line-height:1;margin:6px 0}
+.mon-timer.running{color:var(--sp-ok)}
+.mon-timer.paused{color:var(--sp-warn)}
+.mon-meta{font-size:10px;color:var(--sp-muted);margin-bottom:10px}
+.mon-actions{display:flex;gap:6px;flex-wrap:wrap}
+
+/* Sub-tabs dentro de la página de tiempos */
+.sub-tabs{display:flex;gap:0;border-bottom:1px solid var(--sp-border);margin-bottom:1.25rem}
+.sub-tab{padding:8px 16px;font-size:11px;font-weight:500;color:var(--sp-muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.15s;background:transparent;border-top:none;border-left:none;border-right:none;font-family:'Inter',sans-serif;white-space:nowrap}
+.sub-tab:hover{color:var(--sp-text)}
+.sub-tab.active{color:var(--sp-blue);border-bottom-color:var(--sp-blue-mid)}
+.sub-panel{display:none}
+.sub-panel.active{display:block}
+
+/* Lector QR */
+.qr-scan-wrap{display:flex;gap:1.5rem;flex-wrap:wrap;align-items:flex-start}
+.qr-cam-box{width:280px;min-height:280px;background:#f0f4f8;border:2px dashed var(--sp-border);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;position:relative;overflow:hidden;flex-shrink:0}
+.qr-scan-line{position:absolute;width:100%;height:2px;background:linear-gradient(90deg,transparent,var(--sp-blue-mid),transparent);animation:scanMove 2s ease-in-out infinite;display:none;top:0}
+@keyframes scanMove{0%{top:0}100%{top:100%}}
+.qr-scan-line.on{display:block}
+.qr-cam-placeholder{text-align:center;color:var(--sp-muted)}
+.qr-cam-placeholder i{font-size:40px;display:block;margin-bottom:8px;opacity:0.4}
+.qr-cam-placeholder p{font-size:12px}
+#qr-cam-inner{width:100%;display:none}
+#qr-cam-inner video{border-radius:8px}
+
+.qr-result-panel{flex:1;min-width:240px}
+.qr-ok-box{background:var(--sp-ok-bg);border:1px solid #86efac;border-radius:8px;padding:12px;margin-bottom:1rem;display:none}
+.qr-ok-box.show{display:block}
+.qr-ok-title{font-size:11px;font-weight:600;color:var(--sp-ok);margin-bottom:8px}
+.qr-ok-field{margin-bottom:6px}
+.qr-ok-lbl{font-size:9px;text-transform:uppercase;letter-spacing:0.6px;color:var(--sp-muted);font-weight:600}
+.qr-ok-val{font-size:12px;font-weight:600;color:var(--sp-text)}
+
+.fichajes-log{background:var(--sp-white);border-radius:8px;border:1px solid var(--sp-border);padding:10px 12px;max-height:280px;overflow-y:auto}
+.fichaje-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #f0f4f8;font-size:11px;gap:8px}
+.fichaje-row:last-child{border-bottom:none}
+
+/* Generador etiquetas QR */
+.etiquetas-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
+.etiqueta-card{background:var(--sp-white);border-radius:10px;border:1px solid var(--sp-border);padding:1rem;text-align:center}
+.etiqueta-nombre{font-size:14px;font-weight:600;color:var(--sp-navy);margin-bottom:2px}
+.etiqueta-meta{font-size:10px;color:var(--sp-muted);margin-bottom:10px}
+.etiqueta-qr-box{display:flex;justify-content:center;margin-bottom:8px}
+
+/* CLIENTES */
+.cli-block{background:var(--sp-white);border-radius:10px;border:1px solid var(--sp-border);margin-bottom:1rem;overflow:hidden}
+.cli-hd{padding:12px 14px;background:var(--sp-accent);border-bottom:1px solid var(--sp-border);display:flex;align-items:center;justify-content:space-between}
+.cli-av{width:36px;height:36px;border-radius:50%;background:var(--sp-blue);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;font-family:'Space Grotesk',sans-serif;flex-shrink:0}
+.cli-kpis{display:flex;gap:12px;flex-wrap:wrap;margin-top:5px}
+.cli-k{font-size:11px;color:var(--sp-muted)}.cli-k b{color:var(--sp-text)}
+
+/* OF */
+.of-doc{border:1px solid var(--sp-border);border-radius:8px;overflow:hidden;font-size:11px}
+.of-hd{background:var(--sp-navy);padding:11px 14px;display:flex;justify-content:space-between;align-items:center}
+.of-hl{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;color:#fff}
+.of-hr{font-size:10px;color:rgba(255,255,255,0.45)}
+.of-r{display:flex;border-bottom:1px solid #e8eff8}
+.of-r:last-child{border-bottom:none}
+.of-k{padding:7px 12px;color:var(--sp-muted);width:46%;border-right:1px solid #e8eff8;font-weight:500}
+.of-v{padding:7px 12px;font-weight:600;flex:1;color:var(--sp-text)}
+.row-ok{background:var(--sp-ok-bg)}.row-ok .of-k{color:var(--sp-ok)}.row-ok .of-v{color:var(--sp-ok)}
+.row-dev{background:var(--sp-dev-bg)}.row-dev .of-k{color:var(--sp-dev)}.row-dev .of-v{color:var(--sp-dev)}
+.row-chat{background:var(--sp-danger-bg)}.row-chat .of-k{color:var(--sp-danger)}.row-chat .of-v{color:var(--sp-danger)}
+
+/* QR section dentro de OF */
+.of-qr-section{padding:16px;text-align:center;border-top:1px solid #e8eff8;background:#fafbfd}
+.of-qr-lbl{font-size:10px;color:var(--sp-muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600}
+#qr-of-container{display:flex;justify-content:center;align-items:center}
+#qr-of-container canvas,#qr-of-container img{border-radius:4px}
+
+.empty{text-align:center;padding:2.5rem 1rem;color:var(--sp-muted)}
+.empty i{font-size:32px;display:block;margin-bottom:10px;color:var(--sp-blue-mid);opacity:0.5}
+.empty p{font-size:12px}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--sp-navy);color:#fff;padding:10px 16px;border-radius:8px;font-size:12px;font-weight:500;display:flex;align-items:center;gap:8px;z-index:9997;transform:translateY(100px);opacity:0;transition:all 0.3s;border-left:3px solid var(--sp-blue-mid)}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.ok-toast{border-left-color:#4ade80}
+.toast.err-toast{border-left-color:#f87171}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-logo-icon">
+        <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="4" y="6" width="24" height="4" rx="2" fill="white"/>
+          <rect x="4" y="13" width="18" height="4" rx="2" fill="white"/>
+          <rect x="4" y="20" width="24" height="4" rx="2" fill="white"/>
+          <rect x="4" y="27" width="14" height="4" rx="2" fill="white"/>
+          <rect x="30" y="13" width="10" height="22" rx="2" fill="#3b82d4"/>
+          <path d="M30 13 Q40 13 40 20 L30 13Z" fill="#93c5fd"/>
+        </svg>
+      </div>
+      <div class="login-brand">Grupo Sopena</div>
+      <div class="login-sub">Control de chapas</div>
+      <div style="font-size:9px;color:#c7d8f0;margin-top:8px">v17.0</div>
+      <div style="font-size:9px;color:#c7d8f0;margin-top:8px">v10.0</div>
+    </div>
+    <div class="login-title">Accede a tu cuenta</div>
+    <div class="lfield">
+      <label>Email</label>
+      <input type="email" id="l-email" placeholder="tu@email.com" autocomplete="email">
+    </div>
+    <div class="lfield">
+      <label>Contraseña</label>
+      <input type="password" id="l-pass" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="login-btn" onclick="doLogin()">Entrar</button>
+    <div class="login-err" id="l-err">Email o contraseña incorrectos</div>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div id="loading-screen" style="display:none">
+  <svg viewBox="0 0 44 44" fill="none" width="56" height="56">
+    <rect x="4" y="6" width="24" height="4" rx="2" fill="white"/>
+    <rect x="4" y="13" width="18" height="4" rx="2" fill="white"/>
+    <rect x="4" y="20" width="24" height="4" rx="2" fill="white"/>
+    <rect x="4" y="27" width="14" height="4" rx="2" fill="white"/>
+    <rect x="30" y="13" width="10" height="22" rx="2" fill="#3b82d4"/>
+  </svg>
+  <div style="font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;color:#fff;margin-top:16px">Grupo Sopena</div>
+  <div class="loading-bar"><div class="loading-bar-fill"></div></div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none">
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo-box">
+        <svg viewBox="0 0 44 44" fill="none" width="30" height="30">
+          <rect x="4" y="6" width="24" height="4" rx="2" fill="#1a3a6b"/>
+          <rect x="4" y="13" width="18" height="4" rx="2" fill="#1a3a6b"/>
+          <rect x="4" y="20" width="24" height="4" rx="2" fill="#1a3a6b"/>
+          <rect x="4" y="27" width="14" height="4" rx="2" fill="#1a3a6b"/>
+          <rect x="30" y="13" width="10" height="22" rx="2" fill="#2563b0"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-name">Grupo Sopena</div>
+        <div class="brand-sub">Control de chapas</div>
+      </div>
+      <div class="brand-sep"></div>
+      <div class="brand-app">Gestión de palets</div>
+    </div>
+    <div class="topright">
+      <div class="sync-wrap">
+        <span class="sync-dot" id="sync-dot"></span>
+        <span class="sync-label" id="sync-label">Conectado</span>
+      </div>
+      <div class="user-chip">
+        <div class="user-av" id="user-av">?</div>
+        <div>
+          <div class="user-name" id="user-name">—</div>
+          <div class="user-role" id="user-role-label">—</div>
+        </div>
+      </div>
+      <span id="topdate" style="font-size:10px;color:#ffffff40;margin-right:4px"></span>
+      <button class="logout-btn" onclick="doLogout()"><i class="ti ti-logout" style="font-size:12px"></i> Salir</button>
+    </div>
+  </div>
+
+  <!-- NAV con la nueva pestaña -->
+  <div class="navrow" id="navrow">
+    <button class="ntab active" data-v="dashboard"><i class="ti ti-layout-dashboard" style="font-size:12px"></i> Panel</button>
+    <button class="ntab" data-v="palets"><i class="ti ti-stack-2" style="font-size:12px"></i> Palets</button>
+    <button class="ntab" data-v="operario"><i class="ti ti-tool" style="font-size:12px"></i> Operario</button>
+    <button class="ntab admin-only" data-v="clientes"><i class="ti ti-users" style="font-size:12px"></i> Clientes</button>
+    <button class="ntab admin-only" data-v="tiempos"><i class="ti ti-clock" style="font-size:12px"></i> Control de Tiempos</button>
+  </div>
+
+  <!-- PANEL -->
+  <div class="page on" id="page-dashboard">
+    <div class="ph">
+      <div><div class="ptitle">Panel de control</div><div class="psub" id="dash-date"></div></div>
+      <button class="btn btn-primary admin-only" onclick="openNuevo()"><i class="ti ti-plus"></i> Nuevo palet</button>
+    </div>
+    <div class="sgrid">
+      <div class="sc"><div class="sc-lbl">Total palets</div><div class="sc-val" id="st-t">—</div><div class="sc-ft">registrados</div></div>
+      <div class="sc"><div class="sc-lbl">Abiertos</div><div class="sc-val cblue" id="st-a">—</div><div class="sc-ft">sin iniciar</div></div>
+      <div class="sc"><div class="sc-lbl">En proceso</div><div class="sc-val cwarn" id="st-p">—</div><div class="sc-ft">en taller</div></div>
+      <div class="sc"><div class="sc-lbl">Cerrados OK</div><div class="sc-val cok" id="st-ok">—</div><div class="sc-ft">sin diferencia</div></div>
+      <div class="sc"><div class="sc-lbl">Con diferencia</div><div class="sc-val cdanger" id="st-d">—</div><div class="sc-ft">revisar</div></div>
+      <div class="sc"><div class="sc-lbl">Chapas pendientes</div><div class="sc-val cwarn" id="st-pend">—</div><div class="sc-ft">por procesar</div></div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title"><i class="ti ti-stack-2" style="font-size:12px"></i> Últimos palets</span><span style="font-size:10px;color:var(--sp-muted)">Tiempo real</span></div>
+      <div class="tw"><table><thead><tr><th>Nº palet</th><th>Ped. cliente</th><th>Ped. Libra</th><th>Cliente</th><th>Acabado</th><th>Medida</th><th>Entradas</th><th>Procesadas</th><th>Estado</th></tr></thead><tbody id="dash-tb"></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- PALETS -->
+  <div class="page" id="page-palets">
+    <div class="ph">
+      <div><div class="ptitle">Gestión de palets</div><div class="psub" id="pal-count"></div></div>
+      <button class="btn btn-primary admin-only" onclick="openNuevo()"><i class="ti ti-plus"></i> Nuevo palet</button>
+    </div>
+    <div class="frow">
+      <input type="text" id="f-cli" placeholder="🔍 Buscar cliente..." oninput="renderPalets()">
+      <input type="text" id="f-ped" placeholder="🔍 Nº pedido..." oninput="renderPalets()">
+      <select id="f-est" onchange="renderPalets()">
+        <option value="">Todos los estados</option>
+        <option value="abierto">Abierto</option>
+        <option value="proceso">En proceso</option>
+        <option value="cerrado_ok">Cerrado OK</option>
+        <option value="cerrado_diff">Cerrado con diferencia</option>
+      </select>
+    </div>
+    <div class="card">
+      <div class="tw"><table><thead><tr><th>Nº palet</th><th>Ped. cliente</th><th>Ped. Libra</th><th>Cliente</th><th>Acabado</th><th>Medida</th><th>Tratamiento</th><th>Entrada</th><th>OK</th><th>Dev.</th><th>Chatarra</th><th>Progreso</th><th>Estado</th><th style="text-align:center">Acciones</th></tr></thead><tbody id="pal-tb"></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- OPERARIO -->
+  <div class="page" id="page-operario">
+    <div class="ph">
+      <div><div class="ptitle">Vista operario</div><div class="psub">Escribe directamente las unidades — se guarda automáticamente</div></div>
+    </div>
+    <div class="frow">
+      <input type="text" id="op-search" placeholder="🔍 Buscar por cliente o nº pedido..." oninput="window.renderOp&&window.renderOp()" style="max-width:420px">
+    </div>
+    <div id="op-list"></div>
+  </div>
+
+  <!-- CLIENTES -->
+  <div class="page admin-only" id="page-clientes">
+    <div class="ph">
+      <div><div class="ptitle">Resumen por cliente</div><div class="psub">Stock pendiente y totales acumulados</div></div>
+    </div>
+    <div id="cli-list"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       CONTROL DE TIEMPOS — nueva pestaña
+  ═══════════════════════════════════════ -->
+  <div class="page admin-only" id="page-tiempos">
+    <div class="ph">
+      <div><div class="ptitle">Control de Tiempos por Operario</div><div class="psub">Monitor en vivo, fichaje por QR e historial de jornadas</div></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" onclick="exportarTiempos()"><i class="ti ti-download"></i> Exportar CSV</button>
+        <button class="btn btn-primary" onclick="abrirModalOperario()"><i class="ti ti-plus"></i> Nuevo operario</button>
+      </div>
+    </div>
+
+    <!-- KPIs superiores -->
+    <div class="tiempos-summary">
+      <div class="ts-card"><div class="ts-lbl">Activos ahora</div><div class="ts-val cok" id="tm-activos">0</div><div class="ts-sub">en jornada</div></div>
+      <div class="ts-card"><div class="ts-lbl">En pausa</div><div class="ts-val cwarn" id="tm-pausa">0</div><div class="ts-sub">descansando</div></div>
+      <div class="ts-card"><div class="ts-lbl">Horas totales hoy</div><div class="ts-val cblue" id="tm-horas-hoy">0h 0m</div><div class="ts-sub" id="tm-fecha-hoy">—</div></div>
+      <div class="ts-card"><div class="ts-lbl">Fichajes hoy</div><div class="ts-val" id="tm-fichajes-hoy">0</div><div class="ts-sub">entradas registradas</div></div>
+      <div class="ts-card"><div class="ts-lbl">Horas semana</div><div class="ts-val" id="tm-horas-sem">—</div><div class="ts-sub">lunes a hoy</div></div>
+    </div>
+
+    <!-- Sub-navegación -->
+    <div class="sub-tabs">
+      <button class="sub-tab active" onclick="switchSubTab('monitor')"><i class="ti ti-activity" style="font-size:11px"></i> Monitor en vivo</button>
+      <button class="sub-tab" onclick="switchSubTab('qr')"><i class="ti ti-qrcode" style="font-size:11px"></i> Lector QR</button>
+      <button class="sub-tab" onclick="switchSubTab('historial')"><i class="ti ti-history" style="font-size:11px"></i> Historial</button>
+      <button class="sub-tab" onclick="switchSubTab('etiquetas')"><i class="ti ti-tag" style="font-size:11px"></i> Etiquetas QR</button>
+      <button class="sub-tab" onclick="switchSubTab('productividad')"><i class="ti ti-gauge" style="font-size:11px"></i> Productividad</button>
+    </div>
+
+    <!-- SUB: MONITOR EN VIVO -->
+    <div class="sub-panel active" id="sub-monitor">
+      <div class="monitor-grid" id="monitor-grid"></div>
+      <div id="monitor-empty" class="empty" style="display:none">
+        <i class="ti ti-users"></i>
+        <p>Sin operarios. Añade uno con "Nuevo operario".</p>
+      </div>
+
+      <!-- Tabla resumen del día -->
+      <div class="card">
+        <div class="card-hd"><span class="card-title"><i class="ti ti-table" style="font-size:12px"></i> Resumen del día</span></div>
+        <div class="tiempos-table-wrap">
+          <table><thead><tr>
+            <th>Operario</th><th>Código</th><th>Entrada</th><th>Tiempo activo</th><th>Tiempo pausa</th><th>Tarea actual</th><th>Estado</th><th>Acciones</th>
+          </tr></thead><tbody id="monitor-resumen-tbody"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUB: LECTOR QR -->
+    <div class="sub-panel" id="sub-qr">
+      <div class="card">
+        <div class="card-hd"><span class="card-title"><i class="ti ti-qrcode" style="font-size:12px"></i> Lector QR — Fichaje automático</span></div>
+        <div style="padding:14px">
+          <p style="font-size:12px;color:var(--sp-muted);margin-bottom:14px">Escanea la etiqueta QR del operario para registrar entrada, pausa o salida automáticamente.</p>
+          <div class="qr-scan-wrap">
+            <div>
+              <div class="qr-cam-box" id="qr-cam-box">
+                <div class="qr-scan-line" id="qr-scan-line"></div>
+                <div id="qr-cam-inner"><div id="qr-reader"></div></div>
+                <div class="qr-cam-placeholder" id="qr-placeholder">
+                  <i class="ti ti-qrcode"></i>
+                  <p>Cámara desactivada</p>
+                </div>
+              </div>
+              <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
+                <button class="btn binfo btn-sm" id="btn-cam-start" onclick="iniciarCamara()"><i class="ti ti-camera"></i> Activar cámara</button>
+                <button class="btn bdanger btn-sm" id="btn-cam-stop" onclick="detenerCamara()" style="display:none"><i class="ti ti-x"></i> Detener</button>
+                <button class="btn btn-sm" onclick="fichajeManual()"><i class="ti ti-keyboard"></i> Manual</button>
+              </div>
+            </div>
+            <div class="qr-result-panel">
+              <div class="qr-ok-box" id="qr-ok-box">
+                <div class="qr-ok-title"><i class="ti ti-circle-check"></i> QR detectado</div>
+                <div class="qr-ok-field"><div class="qr-ok-lbl">Operario</div><div class="qr-ok-val" id="qr-res-nombre">—</div></div>
+                <div class="qr-ok-field"><div class="qr-ok-lbl">Código</div><div class="qr-ok-val" id="qr-res-codigo">—</div></div>
+                <div class="qr-ok-field"><div class="qr-ok-lbl">Acción</div><div class="qr-ok-val" id="qr-res-accion">—</div></div>
+                <div class="qr-ok-field"><div class="qr-ok-lbl">Hora</div><div class="qr-ok-val" id="qr-res-hora">—</div></div>
+              </div>
+              <div class="card" style="margin:0">
+                <div class="card-hd"><span class="card-title">Últimos fichajes</span></div>
+                <div style="padding:10px" id="log-fichajes">
+                  <div style="font-size:11px;color:var(--sp-muted);text-align:center;padding:1rem">Sin fichajes hoy</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUB: HISTORIAL -->
+    <div class="sub-panel" id="sub-historial">
+      <div class="card">
+        <div class="card-hd"><span class="card-title"><i class="ti ti-history" style="font-size:12px"></i> Historial de jornadas</span></div>
+        <div style="padding:14px">
+          <div class="tiempos-filter" style="margin-bottom:1rem">
+            <input type="date" id="hist-desde" onchange="renderHistorial()">
+            <input type="date" id="hist-hasta" onchange="renderHistorial()">
+            <select id="hist-op" onchange="renderHistorial()"><option value="">Todos los operarios</option></select>
+          </div>
+        </div>
+        <div class="tiempos-table-wrap">
+          <table><thead><tr>
+            <th>Fecha</th><th>Operario</th><th>Código</th><th>Entrada</th><th>Salida</th><th>H. trabajo</th><th>H. pausa</th><th>H. efectivas</th><th>Tarea</th><th>Motivo(s) parada</th><th style="text-align:center">Acciones</th>
+          </tr></thead><tbody id="hist-tbody"></tbody></table>
+        </div>
+        <!-- Resumen por operario -->
+        <div style="padding:14px;border-top:1px solid var(--sp-border);margin-top:4px">
+          <div style="font-size:10px;font-weight:600;color:var(--sp-blue);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:10px">Resumen por operario</div>
+          <div class="tiempos-table-wrap">
+            <table><thead><tr>
+              <th>Operario</th><th>Registros</th><th>H. totales</th><th>H. pausa</th><th>H. efectivas</th><th>Último registro</th>
+            </tr></thead><tbody id="hist-resumen-tbody"></tbody></table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUB: ETIQUETAS QR -->
+    <div class="sub-panel" id="sub-etiquetas">
+      <div class="card">
+        <div class="card-hd"><span class="card-title"><i class="ti ti-tag" style="font-size:12px"></i> Etiquetas QR por operario</span><button class="btn btn-sm" onclick="imprimirTodasEtiquetas()"><i class="ti ti-printer"></i> Imprimir todas</button></div>
+        <div style="padding:14px">
+          <p style="font-size:12px;color:var(--sp-muted);margin-bottom:14px">Genera e imprime las etiquetas QR para el fichaje rápido desde cualquier dispositivo.</p>
+          <div class="etiquetas-grid" id="etiquetas-grid"></div>
+          <div class="empty" id="etiquetas-empty" style="display:none"><i class="ti ti-tag"></i><p>Añade operarios para generar sus etiquetas QR</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="sub-panel" id="sub-productividad">
+      <div class="tiempos-summary">
+        <div class="ts-card"><div class="ts-lbl">Chapas hoy</div><div class="ts-val cblue" id="prod-chapas-hoy">0</div><div class="ts-sub">todos los operarios</div></div>
+        <div class="ts-card"><div class="ts-lbl">Horas hoy</div><div class="ts-val cok" id="prod-horas-hoy">0h</div><div class="ts-sub">netas trabajadas</div></div>
+        <div class="ts-card"><div class="ts-lbl">Ratio medio hoy</div><div class="ts-val cwarn" id="prod-ratio-hoy">—</div><div class="ts-sub">chapas / minuto</div></div>
+        <div class="ts-card"><div class="ts-lbl">Operarios con registro</div><div class="ts-val" id="prod-ops-hoy">0</div><div class="ts-sub">hoy</div></div>
+      </div>
+      <div class="tiempos-filter">
+        <input type="date" id="prod-fecha-ini" oninput="window.renderProductividad&&window.renderProductividad()">
+        <input type="date" id="prod-fecha-fin" oninput="window.renderProductividad&&window.renderProductividad()">
+        <input type="text" id="prod-op-filter" placeholder="🔍 Filtrar por operario..." oninput="window.renderProductividad&&window.renderProductividad()">
+        <select id="prod-palet-filter" onchange="window.renderProductividad&&window.renderProductividad()"><option value="">Todos los palets</option></select>
+      </div>
+      <div class="card">
+        <div class="card-hd"><span class="card-title"><i class="ti ti-gauge" style="font-size:12px"></i> Productividad por turno</span></div>
+        <div class="tiempos-table-wrap">
+          <table><thead><tr>
+            <th>Fecha</th><th>Operario</th><th>Palet</th><th>Cliente</th><th>H. netas</th><th>Chapas turno</th><th>Chapas/min</th>
+          </tr></thead><tbody id="prod-tbody"></tbody></table>
+        </div>
+      </div>
+      <div style="margin-top:1rem">
+        <div class="card">
+          <div class="card-hd"><span class="card-title"><i class="ti ti-user" style="font-size:12px"></i> Resumen por operario y día</span></div>
+          <div class="tiempos-table-wrap">
+            <table><thead><tr>
+              <th>Fecha</th><th>Operario</th><th>Turnos</th><th>H. netas total</th><th>Chapas total</th><th>Chapas/min</th>
+            </tr></thead><tbody id="prod-resumen-tbody"></tbody></table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /page-tiempos -->
+
+</div><!-- /app -->
+
+<!-- MODAL NUEVO PALET -->
+<div class="overlay" id="ov-nuevo">
+  <div class="modal">
+    <div style="height:3px;background:linear-gradient(90deg,var(--sp-navy),var(--sp-blue-mid));border-radius:12px 12px 0 0"></div>
+    <div class="mhd">
+      <div class="mtitle"><i class="ti ti-stack-2" style="font-size:15px;color:var(--sp-blue)"></i> Nuevo palet</div>
+      <button class="btn btn-sm btn-ico" onclick="closeOv('ov-nuevo')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="mbody">
+      <div class="fgrid2">
+        <div class="field"><label>Cliente *</label><input id="n-cli" type="text" placeholder="Nombre cliente" list="cli-dl"><datalist id="cli-dl"></datalist></div>
+        <div class="field"><label>Nº palet *</label><input id="n-num" type="text" placeholder="Ej: PAL-0001"></div>
+      </div>
+      <div class="fgrid2">
+        <div class="field"><label>Nº pedido cliente *</label><input id="n-pc" type="text" placeholder="Ej: PC-2024-001"></div>
+        <div class="field"><label>Nº pedido Libra *</label><input id="n-pl" type="text" placeholder="Ej: LB-2024-001"></div>
+      </div>
+      <div class="fgrid2">
+        <div class="field"><label>Acabado *</label><input id="n-ac" type="text" placeholder="Ej: Zincado"></div>
+        <div class="field"><label>Medida *</label><input id="n-me" type="text" placeholder="Ej: M6x20"></div>
+      </div>
+      <div class="fgrid2">
+        <div class="field"><label>Tratamiento</label><input id="n-tr" type="text" placeholder="Ej: Decapado + Zincado"></div>
+        <div class="field"><label>Chapas entrada *</label><input id="n-ch" type="number" placeholder="0" min="0"></div>
+      </div>
+      <div class="field"><label>Observaciones</label><textarea id="n-ob" rows="2" placeholder="Notas internas..."></textarea></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn" onclick="closeOv('ov-nuevo')">Cancelar</button>
+      <button class="btn btn-primary" onclick="crearPalet()"><i class="ti ti-check"></i> Crear palet</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL OF -->
+<div class="overlay" id="ov-of">
+  <div class="modal">
+    <div style="height:3px;background:linear-gradient(90deg,var(--sp-navy),var(--sp-blue-mid));border-radius:12px 12px 0 0"></div>
+    <div class="mhd">
+      <div class="mtitle"><i class="ti ti-file-description" style="font-size:15px;color:var(--sp-blue)"></i> <span id="of-titulo">OF</span></div>
+      <button class="btn btn-sm btn-ico" onclick="closeOv('ov-of')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="mbody" id="of-body"></div>
+    <div class="mfoot" style="justify-content:space-between">
+      <button class="btn" onclick="closeOv('ov-of')">Cerrar</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn" id="of-edit-btn" style="display:none"><i class="ti ti-edit"></i> Editar</button>
+        <button class="btn btn-primary" id="of-dl"><i class="ti ti-download"></i> Descargar OF</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CIERRE -->
+<div class="overlay" id="ov-cierre">
+  <div class="modal">
+    <div style="height:3px;background:linear-gradient(90deg,var(--sp-navy),var(--sp-blue-mid));border-radius:12px 12px 0 0"></div>
+    <div class="mhd">
+      <div class="mtitle"><i class="ti ti-lock" style="font-size:15px;color:var(--sp-blue)"></i> Cerrar palet</div>
+      <button class="btn btn-sm btn-ico" onclick="closeOv('ov-cierre')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="mbody">
+      <div id="ci-info" style="background:var(--sp-accent);border-radius:8px;padding:10px 12px;font-size:11px;border:1px solid var(--sp-border)"></div>
+      <div class="field"><label>Chapas totales al cierre</label><input type="number" id="ci-inp" placeholder="Total físico del palet" min="0"></div>
+      <div id="ci-res" style="display:none;padding:9px 12px;border-radius:7px;font-size:12px;font-weight:600"></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn" onclick="closeOv('ov-cierre')">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmarCierre()"><i class="ti ti-lock"></i> Confirmar cierre</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR PALET -->
+<div class="overlay" id="ov-editar">
+  <div class="modal">
+    <div style="height:3px;background:linear-gradient(90deg,var(--sp-navy),var(--sp-blue-mid));border-radius:12px 12px 0 0"></div>
+    <div class="mhd">
+      <div class="mtitle"><i class="ti ti-edit" style="font-size:15px;color:var(--sp-blue)"></i> Editar palet</div>
+      <button class="btn btn-sm btn-ico" onclick="closeOv('ov-editar')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="mbody">
+      <input type="hidden" id="e-fid">
+      <div class="fgrid2">
+        <div class="field"><label>Cliente *</label><input id="e-cli" type="text"></div>
+        <div class="field"><label>Nº palet *</label><input id="e-num" type="text"></div>
+      </div>
+      <div class="fgrid2">
+        <div class="field"><label>Nº pedido cliente</label><input id="e-pc" type="text"></div>
+        <div class="field"><label>Nº pedido Libra</label><input id="e-pl" type="text"></div>
+      </div>
+      <div class="fgrid2">
+        <div class="field"><label>Acabado</label><input id="e-ac" type="text"></div>
+        <div class="field"><label>Medida</label><input id="e-me" type="text"></div>
+      </div>
+      <div class="fgrid2">
+        <div class="field"><label>Tratamiento</label><input id="e-tr" type="text"></div>
+        <div class="field"><label>Chapas entrada</label><input id="e-ch" type="number" min="0"></div>
+      </div>
+      <div class="fgrid2">
+        <div class="field"><label>Chapas OK</label><input id="e-ok" type="number" min="0"></div>
+        <div class="field"><label>Devolución cliente</label><input id="e-dev" type="number" min="0"></div>
+      </div>
+      <div class="fgrid2">
+        <div class="field"><label>Chatarra</label><input id="e-chat" type="number" min="0"></div>
+        <div class="field"><label>Estado</label>
+          <select id="e-est">
+            <option value="abierto">Abierto</option>
+            <option value="proceso">En proceso</option>
+            <option value="cerrado_ok">Cerrado OK</option>
+            <option value="cerrado_diff">Cerrado con diferencia</option>
+          </select>
+        </div>
+      </div>
+      <div class="field"><label>Observaciones</label><textarea id="e-ob" rows="2"></textarea></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn" onclick="closeOv('ov-editar')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarEdicion()"><i class="ti ti-check"></i> Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NUEVO OPERARIO (tiempos) -->
+<div class="overlay" id="ov-operario">
+  <div class="modal">
+    <div style="height:3px;background:linear-gradient(90deg,var(--sp-navy),var(--sp-blue-mid));border-radius:12px 12px 0 0"></div>
+    <div class="mhd">
+      <div class="mtitle"><i class="ti ti-user-plus" style="font-size:15px;color:var(--sp-blue)"></i> Nuevo operario</div>
+      <button class="btn btn-sm btn-ico" onclick="closeOv('ov-operario')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="mbody">
+      <div class="fgrid2">
+        <div class="field"><label>Nombre completo *</label><input id="op-nombre" type="text" placeholder="Ej: Juan García"></div>
+        <div class="field"><label>Código / ID *</label><input id="op-codigo" type="text" placeholder="Ej: OP-001"></div>
+      </div>
+      <div class="fgrid2">
+        <div class="field"><label>Departamento</label>
+          <select id="op-depto">
+            <option>Producción</option><option>Almacén</option><option>Calidad</option><option>Logística</option><option>Mantenimiento</option>
+          </select>
+        </div>
+        <div class="field"><label>Tarea habitual</label><input id="op-tarea" type="text" placeholder="Ej: Corte de chapas"></div>
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="btn" onclick="closeOv('ov-operario')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarOperario()"><i class="ti ti-check"></i> Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL FICHAJE MANUAL -->
+<div class="overlay" id="ov-manual">
+  <div class="modal" style="max-width:360px">
+    <div style="height:3px;background:linear-gradient(90deg,var(--sp-navy),var(--sp-blue-mid));border-radius:12px 12px 0 0"></div>
+    <div class="mhd">
+      <div class="mtitle"><i class="ti ti-keyboard" style="font-size:15px;color:var(--sp-blue)"></i> Fichaje manual</div>
+      <button class="btn btn-sm btn-ico" onclick="closeOv('ov-manual')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="mbody">
+      <div class="field"><label>Operario</label>
+        <select id="manual-op-sel"><option value="">Selecciona operario...</option></select>
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="btn" onclick="closeOv('ov-manual')">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmarManual()"><i class="ti ti-check"></i> Registrar fichaje</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL MOTIVO DE PAUSA -->
+<div class="overlay" id="ov-motivo-pausa">
+  <div class="modal" style="max-width:380px">
+    <div style="height:3px;background:linear-gradient(90deg,var(--sp-navy),var(--sp-blue-mid));border-radius:12px 12px 0 0"></div>
+    <div class="mhd">
+      <div class="mtitle"><i class="ti ti-player-pause" style="font-size:15px;color:var(--sp-warn)"></i> Motivo de la pausa</div>
+      <button class="btn btn-sm btn-ico" onclick="closeOv('ov-motivo-pausa')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="mbody">
+      <input type="hidden" id="mp-opid">
+      <div class="field"><label>¿Por qué se detiene? *</label>
+        <select id="mp-motivo-sel" onchange="if(this.value!=='Otro'){g('mp-motivo-otro').style.display='none';}else{g('mp-motivo-otro').style.display='block';}">
+          <option value="">Selecciona un motivo...</option>
+          <option value="Descanso / bocadillo">Descanso / bocadillo</option>
+          <option value="Comida">Comida</option>
+          <option value="Avería de máquina">Avería de máquina</option>
+          <option value="Falta de material">Falta de material</option>
+          <option value="Cambio de tarea">Cambio de tarea</option>
+          <option value="Reunión">Reunión</option>
+          <option value="Otro">Otro (especificar)</option>
+        </select>
+      </div>
+      <div class="field" id="mp-motivo-otro" style="display:none">
+        <label>Especifica el motivo</label>
+        <input type="text" id="mp-motivo-texto" placeholder="Describe el motivo de la parada">
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="btn" onclick="closeOv('ov-motivo-pausa')">Cancelar</button>
+      <button class="btn" style="background:var(--sp-warn);color:#fff;border-color:var(--sp-warn)" onclick="confirmarPausaConMotivo()"><i class="ti ti-player-pause"></i> Iniciar pausa</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ════════════════════════════════════
+     SCRIPTS
+════════════════════════════════════ -->
+<!-- QR Code generator (etiquetas) — incrustado localmente para evitar bloqueos de red -->
+<script>
+/**
+ * @fileoverview
+ * - Using the 'QRCode for Javascript library'
+ * - Fixed dataset of 'QRCode for Javascript library' for support full-spec.
+ * - this library has no dependencies.
+ * 
+ * @author davidshimjs
+ * @see <a href="http://www.d-project.com/" target="_blank">http://www.d-project.com/</a>
+ * @see <a href="http://jeromeetienne.github.com/jquery-qrcode/" target="_blank">http://jeromeetienne.github.com/jquery-qrcode/</a>
+ */
+var QRCode;
+
+(function () {
+	//---------------------------------------------------------------------
+	// QRCode for JavaScript
+	//
+	// Copyright (c) 2009 Kazuhiko Arase
+	//
+	// URL: http://www.d-project.com/
+	//
+	// Licensed under the MIT license:
+	//   http://www.opensource.org/licenses/mit-license.php
+	//
+	// The word "QR Code" is registered trademark of 
+	// DENSO WAVE INCORPORATED
+	//   http://www.denso-wave.com/qrcode/faqpatent-e.html
+	//
+	//---------------------------------------------------------------------
+	function QR8bitByte(data) {
+		this.mode = QRMode.MODE_8BIT_BYTE;
+		this.data = data;
+		this.parsedData = [];
+
+		// Added to support UTF-8 Characters
+		for (var i = 0, l = this.data.length; i < l; i++) {
+			var byteArray = [];
+			var code = this.data.charCodeAt(i);
+
+			if (code > 0x10000) {
+				byteArray[0] = 0xF0 | ((code & 0x1C0000) >>> 18);
+				byteArray[1] = 0x80 | ((code & 0x3F000) >>> 12);
+				byteArray[2] = 0x80 | ((code & 0xFC0) >>> 6);
+				byteArray[3] = 0x80 | (code & 0x3F);
+			} else if (code > 0x800) {
+				byteArray[0] = 0xE0 | ((code & 0xF000) >>> 12);
+				byteArray[1] = 0x80 | ((code & 0xFC0) >>> 6);
+				byteArray[2] = 0x80 | (code & 0x3F);
+			} else if (code > 0x80) {
+				byteArray[0] = 0xC0 | ((code & 0x7C0) >>> 6);
+				byteArray[1] = 0x80 | (code & 0x3F);
+			} else {
+				byteArray[0] = code;
+			}
+
+			this.parsedData.push(byteArray);
+		}
+
+		this.parsedData = Array.prototype.concat.apply([], this.parsedData);
+
+		if (this.parsedData.length != this.data.length) {
+			this.parsedData.unshift(191);
+			this.parsedData.unshift(187);
+			this.parsedData.unshift(239);
+		}
+	}
+
+	QR8bitByte.prototype = {
+		getLength: function (buffer) {
+			return this.parsedData.length;
+		},
+		write: function (buffer) {
+			for (var i = 0, l = this.parsedData.length; i < l; i++) {
+				buffer.put(this.parsedData[i], 8);
+			}
+		}
+	};
+
+	function QRCodeModel(typeNumber, errorCorrectLevel) {
+		this.typeNumber = typeNumber;
+		this.errorCorrectLevel = errorCorrectLevel;
+		this.modules = null;
+		this.moduleCount = 0;
+		this.dataCache = null;
+		this.dataList = [];
+	}
+
+	QRCodeModel.prototype={addData:function(data){var newData=new QR8bitByte(data);this.dataList.push(newData);this.dataCache=null;},isDark:function(row,col){if(row<0||this.moduleCount<=row||col<0||this.moduleCount<=col){throw new Error(row+","+col);}
+	return this.modules[row][col];},getModuleCount:function(){return this.moduleCount;},make:function(){this.makeImpl(false,this.getBestMaskPattern());},makeImpl:function(test,maskPattern){this.moduleCount=this.typeNumber*4+17;this.modules=new Array(this.moduleCount);for(var row=0;row<this.moduleCount;row++){this.modules[row]=new Array(this.moduleCount);for(var col=0;col<this.moduleCount;col++){this.modules[row][col]=null;}}
+	this.setupPositionProbePattern(0,0);this.setupPositionProbePattern(this.moduleCount-7,0);this.setupPositionProbePattern(0,this.moduleCount-7);this.setupPositionAdjustPattern();this.setupTimingPattern();this.setupTypeInfo(test,maskPattern);if(this.typeNumber>=7){this.setupTypeNumber(test);}
+	if(this.dataCache==null){this.dataCache=QRCodeModel.createData(this.typeNumber,this.errorCorrectLevel,this.dataList);}
+	this.mapData(this.dataCache,maskPattern);},setupPositionProbePattern:function(row,col){for(var r=-1;r<=7;r++){if(row+r<=-1||this.moduleCount<=row+r)continue;for(var c=-1;c<=7;c++){if(col+c<=-1||this.moduleCount<=col+c)continue;if((0<=r&&r<=6&&(c==0||c==6))||(0<=c&&c<=6&&(r==0||r==6))||(2<=r&&r<=4&&2<=c&&c<=4)){this.modules[row+r][col+c]=true;}else{this.modules[row+r][col+c]=false;}}}},getBestMaskPattern:function(){var minLostPoint=0;var pattern=0;for(var i=0;i<8;i++){this.makeImpl(true,i);var lostPoint=QRUtil.getLostPoint(this);if(i==0||minLostPoint>lostPoint){minLostPoint=lostPoint;pattern=i;}}
+	return pattern;},createMovieClip:function(target_mc,instance_name,depth){var qr_mc=target_mc.createEmptyMovieClip(instance_name,depth);var cs=1;this.make();for(var row=0;row<this.modules.length;row++){var y=row*cs;for(var col=0;col<this.modules[row].length;col++){var x=col*cs;var dark=this.modules[row][col];if(dark){qr_mc.beginFill(0,100);qr_mc.moveTo(x,y);qr_mc.lineTo(x+cs,y);qr_mc.lineTo(x+cs,y+cs);qr_mc.lineTo(x,y+cs);qr_mc.endFill();}}}
+	return qr_mc;},setupTimingPattern:function(){for(var r=8;r<this.moduleCount-8;r++){if(this.modules[r][6]!=null){continue;}
+	this.modules[r][6]=(r%2==0);}
+	for(var c=8;c<this.moduleCount-8;c++){if(this.modules[6][c]!=null){continue;}
+	this.modules[6][c]=(c%2==0);}},setupPositionAdjustPattern:function(){var pos=QRUtil.getPatternPosition(this.typeNumber);for(var i=0;i<pos.length;i++){for(var j=0;j<pos.length;j++){var row=pos[i];var col=pos[j];if(this.modules[row][col]!=null){continue;}
+	for(var r=-2;r<=2;r++){for(var c=-2;c<=2;c++){if(r==-2||r==2||c==-2||c==2||(r==0&&c==0)){this.modules[row+r][col+c]=true;}else{this.modules[row+r][col+c]=false;}}}}}},setupTypeNumber:function(test){var bits=QRUtil.getBCHTypeNumber(this.typeNumber);for(var i=0;i<18;i++){var mod=(!test&&((bits>>i)&1)==1);this.modules[Math.floor(i/3)][i%3+this.moduleCount-8-3]=mod;}
+	for(var i=0;i<18;i++){var mod=(!test&&((bits>>i)&1)==1);this.modules[i%3+this.moduleCount-8-3][Math.floor(i/3)]=mod;}},setupTypeInfo:function(test,maskPattern){var data=(this.errorCorrectLevel<<3)|maskPattern;var bits=QRUtil.getBCHTypeInfo(data);for(var i=0;i<15;i++){var mod=(!test&&((bits>>i)&1)==1);if(i<6){this.modules[i][8]=mod;}else if(i<8){this.modules[i+1][8]=mod;}else{this.modules[this.moduleCount-15+i][8]=mod;}}
+	for(var i=0;i<15;i++){var mod=(!test&&((bits>>i)&1)==1);if(i<8){this.modules[8][this.moduleCount-i-1]=mod;}else if(i<9){this.modules[8][15-i-1+1]=mod;}else{this.modules[8][15-i-1]=mod;}}
+	this.modules[this.moduleCount-8][8]=(!test);},mapData:function(data,maskPattern){var inc=-1;var row=this.moduleCount-1;var bitIndex=7;var byteIndex=0;for(var col=this.moduleCount-1;col>0;col-=2){if(col==6)col--;while(true){for(var c=0;c<2;c++){if(this.modules[row][col-c]==null){var dark=false;if(byteIndex<data.length){dark=(((data[byteIndex]>>>bitIndex)&1)==1);}
+	var mask=QRUtil.getMask(maskPattern,row,col-c);if(mask){dark=!dark;}
+	this.modules[row][col-c]=dark;bitIndex--;if(bitIndex==-1){byteIndex++;bitIndex=7;}}}
+	row+=inc;if(row<0||this.moduleCount<=row){row-=inc;inc=-inc;break;}}}}};QRCodeModel.PAD0=0xEC;QRCodeModel.PAD1=0x11;QRCodeModel.createData=function(typeNumber,errorCorrectLevel,dataList){var rsBlocks=QRRSBlock.getRSBlocks(typeNumber,errorCorrectLevel);var buffer=new QRBitBuffer();for(var i=0;i<dataList.length;i++){var data=dataList[i];buffer.put(data.mode,4);buffer.put(data.getLength(),QRUtil.getLengthInBits(data.mode,typeNumber));data.write(buffer);}
+	var totalDataCount=0;for(var i=0;i<rsBlocks.length;i++){totalDataCount+=rsBlocks[i].dataCount;}
+	if(buffer.getLengthInBits()>totalDataCount*8){throw new Error("code length overflow. ("
+	+buffer.getLengthInBits()
+	+">"
+	+totalDataCount*8
+	+")");}
+	if(buffer.getLengthInBits()+4<=totalDataCount*8){buffer.put(0,4);}
+	while(buffer.getLengthInBits()%8!=0){buffer.putBit(false);}
+	while(true){if(buffer.getLengthInBits()>=totalDataCount*8){break;}
+	buffer.put(QRCodeModel.PAD0,8);if(buffer.getLengthInBits()>=totalDataCount*8){break;}
+	buffer.put(QRCodeModel.PAD1,8);}
+	return QRCodeModel.createBytes(buffer,rsBlocks);};QRCodeModel.createBytes=function(buffer,rsBlocks){var offset=0;var maxDcCount=0;var maxEcCount=0;var dcdata=new Array(rsBlocks.length);var ecdata=new Array(rsBlocks.length);for(var r=0;r<rsBlocks.length;r++){var dcCount=rsBlocks[r].dataCount;var ecCount=rsBlocks[r].totalCount-dcCount;maxDcCount=Math.max(maxDcCount,dcCount);maxEcCount=Math.max(maxEcCount,ecCount);dcdata[r]=new Array(dcCount);for(var i=0;i<dcdata[r].length;i++){dcdata[r][i]=0xff&buffer.buffer[i+offset];}
+	offset+=dcCount;var rsPoly=QRUtil.getErrorCorrectPolynomial(ecCount);var rawPoly=new QRPolynomial(dcdata[r],rsPoly.getLength()-1);var modPoly=rawPoly.mod(rsPoly);ecdata[r]=new Array(rsPoly.getLength()-1);for(var i=0;i<ecdata[r].length;i++){var modIndex=i+modPoly.getLength()-ecdata[r].length;ecdata[r][i]=(modIndex>=0)?modPoly.get(modIndex):0;}}
+	var totalCodeCount=0;for(var i=0;i<rsBlocks.length;i++){totalCodeCount+=rsBlocks[i].totalCount;}
+	var data=new Array(totalCodeCount);var index=0;for(var i=0;i<maxDcCount;i++){for(var r=0;r<rsBlocks.length;r++){if(i<dcdata[r].length){data[index++]=dcdata[r][i];}}}
+	for(var i=0;i<maxEcCount;i++){for(var r=0;r<rsBlocks.length;r++){if(i<ecdata[r].length){data[index++]=ecdata[r][i];}}}
+	return data;};var QRMode={MODE_NUMBER:1<<0,MODE_ALPHA_NUM:1<<1,MODE_8BIT_BYTE:1<<2,MODE_KANJI:1<<3};var QRErrorCorrectLevel={L:1,M:0,Q:3,H:2};var QRMaskPattern={PATTERN000:0,PATTERN001:1,PATTERN010:2,PATTERN011:3,PATTERN100:4,PATTERN101:5,PATTERN110:6,PATTERN111:7};var QRUtil={PATTERN_POSITION_TABLE:[[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],[6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],[6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,134],[6,34,60,86,112,138],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],[6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],[6,26,54,82,110,138,166],[6,30,58,86,114,142,170]],G15:(1<<10)|(1<<8)|(1<<5)|(1<<4)|(1<<2)|(1<<1)|(1<<0),G18:(1<<12)|(1<<11)|(1<<10)|(1<<9)|(1<<8)|(1<<5)|(1<<2)|(1<<0),G15_MASK:(1<<14)|(1<<12)|(1<<10)|(1<<4)|(1<<1),getBCHTypeInfo:function(data){var d=data<<10;while(QRUtil.getBCHDigit(d)-QRUtil.getBCHDigit(QRUtil.G15)>=0){d^=(QRUtil.G15<<(QRUtil.getBCHDigit(d)-QRUtil.getBCHDigit(QRUtil.G15)));}
+	return((data<<10)|d)^QRUtil.G15_MASK;},getBCHTypeNumber:function(data){var d=data<<12;while(QRUtil.getBCHDigit(d)-QRUtil.getBCHDigit(QRUtil.G18)>=0){d^=(QRUtil.G18<<(QRUtil.getBCHDigit(d)-QRUtil.getBCHDigit(QRUtil.G18)));}
+	return(data<<12)|d;},getBCHDigit:function(data){var digit=0;while(data!=0){digit++;data>>>=1;}
+	return digit;},getPatternPosition:function(typeNumber){return QRUtil.PATTERN_POSITION_TABLE[typeNumber-1];},getMask:function(maskPattern,i,j){switch(maskPattern){case QRMaskPattern.PATTERN000:return(i+j)%2==0;case QRMaskPattern.PATTERN001:return i%2==0;case QRMaskPattern.PATTERN010:return j%3==0;case QRMaskPattern.PATTERN011:return(i+j)%3==0;case QRMaskPattern.PATTERN100:return(Math.floor(i/2)+Math.floor(j/3))%2==0;case QRMaskPattern.PATTERN101:return(i*j)%2+(i*j)%3==0;case QRMaskPattern.PATTERN110:return((i*j)%2+(i*j)%3)%2==0;case QRMaskPattern.PATTERN111:return((i*j)%3+(i+j)%2)%2==0;default:throw new Error("bad maskPattern:"+maskPattern);}},getErrorCorrectPolynomial:function(errorCorrectLength){var a=new QRPolynomial([1],0);for(var i=0;i<errorCorrectLength;i++){a=a.multiply(new QRPolynomial([1,QRMath.gexp(i)],0));}
+	return a;},getLengthInBits:function(mode,type){if(1<=type&&type<10){switch(mode){case QRMode.MODE_NUMBER:return 10;case QRMode.MODE_ALPHA_NUM:return 9;case QRMode.MODE_8BIT_BYTE:return 8;case QRMode.MODE_KANJI:return 8;default:throw new Error("mode:"+mode);}}else if(type<27){switch(mode){case QRMode.MODE_NUMBER:return 12;case QRMode.MODE_ALPHA_NUM:return 11;case QRMode.MODE_8BIT_BYTE:return 16;case QRMode.MODE_KANJI:return 10;default:throw new Error("mode:"+mode);}}else if(type<41){switch(mode){case QRMode.MODE_NUMBER:return 14;case QRMode.MODE_ALPHA_NUM:return 13;case QRMode.MODE_8BIT_BYTE:return 16;case QRMode.MODE_KANJI:return 12;default:throw new Error("mode:"+mode);}}else{throw new Error("type:"+type);}},getLostPoint:function(qrCode){var moduleCount=qrCode.getModuleCount();var lostPoint=0;for(var row=0;row<moduleCount;row++){for(var col=0;col<moduleCount;col++){var sameCount=0;var dark=qrCode.isDark(row,col);for(var r=-1;r<=1;r++){if(row+r<0||moduleCount<=row+r){continue;}
+	for(var c=-1;c<=1;c++){if(col+c<0||moduleCount<=col+c){continue;}
+	if(r==0&&c==0){continue;}
+	if(dark==qrCode.isDark(row+r,col+c)){sameCount++;}}}
+	if(sameCount>5){lostPoint+=(3+sameCount-5);}}}
+	for(var row=0;row<moduleCount-1;row++){for(var col=0;col<moduleCount-1;col++){var count=0;if(qrCode.isDark(row,col))count++;if(qrCode.isDark(row+1,col))count++;if(qrCode.isDark(row,col+1))count++;if(qrCode.isDark(row+1,col+1))count++;if(count==0||count==4){lostPoint+=3;}}}
+	for(var row=0;row<moduleCount;row++){for(var col=0;col<moduleCount-6;col++){if(qrCode.isDark(row,col)&&!qrCode.isDark(row,col+1)&&qrCode.isDark(row,col+2)&&qrCode.isDark(row,col+3)&&qrCode.isDark(row,col+4)&&!qrCode.isDark(row,col+5)&&qrCode.isDark(row,col+6)){lostPoint+=40;}}}
+	for(var col=0;col<moduleCount;col++){for(var row=0;row<moduleCount-6;row++){if(qrCode.isDark(row,col)&&!qrCode.isDark(row+1,col)&&qrCode.isDark(row+2,col)&&qrCode.isDark(row+3,col)&&qrCode.isDark(row+4,col)&&!qrCode.isDark(row+5,col)&&qrCode.isDark(row+6,col)){lostPoint+=40;}}}
+	var darkCount=0;for(var col=0;col<moduleCount;col++){for(var row=0;row<moduleCount;row++){if(qrCode.isDark(row,col)){darkCount++;}}}
+	var ratio=Math.abs(100*darkCount/moduleCount/moduleCount-50)/5;lostPoint+=ratio*10;return lostPoint;}};var QRMath={glog:function(n){if(n<1){throw new Error("glog("+n+")");}
+	return QRMath.LOG_TABLE[n];},gexp:function(n){while(n<0){n+=255;}
+	while(n>=256){n-=255;}
+	return QRMath.EXP_TABLE[n];},EXP_TABLE:new Array(256),LOG_TABLE:new Array(256)};for(var i=0;i<8;i++){QRMath.EXP_TABLE[i]=1<<i;}
+	for(var i=8;i<256;i++){QRMath.EXP_TABLE[i]=QRMath.EXP_TABLE[i-4]^QRMath.EXP_TABLE[i-5]^QRMath.EXP_TABLE[i-6]^QRMath.EXP_TABLE[i-8];}
+	for(var i=0;i<255;i++){QRMath.LOG_TABLE[QRMath.EXP_TABLE[i]]=i;}
+	function QRPolynomial(num,shift){if(num.length==undefined){throw new Error(num.length+"/"+shift);}
+	var offset=0;while(offset<num.length&&num[offset]==0){offset++;}
+	this.num=new Array(num.length-offset+shift);for(var i=0;i<num.length-offset;i++){this.num[i]=num[i+offset];}}
+	QRPolynomial.prototype={get:function(index){return this.num[index];},getLength:function(){return this.num.length;},multiply:function(e){var num=new Array(this.getLength()+e.getLength()-1);for(var i=0;i<this.getLength();i++){for(var j=0;j<e.getLength();j++){num[i+j]^=QRMath.gexp(QRMath.glog(this.get(i))+QRMath.glog(e.get(j)));}}
+	return new QRPolynomial(num,0);},mod:function(e){if(this.getLength()-e.getLength()<0){return this;}
+	var ratio=QRMath.glog(this.get(0))-QRMath.glog(e.get(0));var num=new Array(this.getLength());for(var i=0;i<this.getLength();i++){num[i]=this.get(i);}
+	for(var i=0;i<e.getLength();i++){num[i]^=QRMath.gexp(QRMath.glog(e.get(i))+ratio);}
+	return new QRPolynomial(num,0).mod(e);}};function QRRSBlock(totalCount,dataCount){this.totalCount=totalCount;this.dataCount=dataCount;}
+	QRRSBlock.RS_BLOCK_TABLE=[[1,26,19],[1,26,16],[1,26,13],[1,26,9],[1,44,34],[1,44,28],[1,44,22],[1,44,16],[1,70,55],[1,70,44],[2,35,17],[2,35,13],[1,100,80],[2,50,32],[2,50,24],[4,25,9],[1,134,108],[2,67,43],[2,33,15,2,34,16],[2,33,11,2,34,12],[2,86,68],[4,43,27],[4,43,19],[4,43,15],[2,98,78],[4,49,31],[2,32,14,4,33,15],[4,39,13,1,40,14],[2,121,97],[2,60,38,2,61,39],[4,40,18,2,41,19],[4,40,14,2,41,15],[2,146,116],[3,58,36,2,59,37],[4,36,16,4,37,17],[4,36,12,4,37,13],[2,86,68,2,87,69],[4,69,43,1,70,44],[6,43,19,2,44,20],[6,43,15,2,44,16],[4,101,81],[1,80,50,4,81,51],[4,50,22,4,51,23],[3,36,12,8,37,13],[2,116,92,2,117,93],[6,58,36,2,59,37],[4,46,20,6,47,21],[7,42,14,4,43,15],[4,133,107],[8,59,37,1,60,38],[8,44,20,4,45,21],[12,33,11,4,34,12],[3,145,115,1,146,116],[4,64,40,5,65,41],[11,36,16,5,37,17],[11,36,12,5,37,13],[5,109,87,1,110,88],[5,65,41,5,66,42],[5,54,24,7,55,25],[11,36,12],[5,122,98,1,123,99],[7,73,45,3,74,46],[15,43,19,2,44,20],[3,45,15,13,46,16],[1,135,107,5,136,108],[10,74,46,1,75,47],[1,50,22,15,51,23],[2,42,14,17,43,15],[5,150,120,1,151,121],[9,69,43,4,70,44],[17,50,22,1,51,23],[2,42,14,19,43,15],[3,141,113,4,142,114],[3,70,44,11,71,45],[17,47,21,4,48,22],[9,39,13,16,40,14],[3,135,107,5,136,108],[3,67,41,13,68,42],[15,54,24,5,55,25],[15,43,15,10,44,16],[4,144,116,4,145,117],[17,68,42],[17,50,22,6,51,23],[19,46,16,6,47,17],[2,139,111,7,140,112],[17,74,46],[7,54,24,16,55,25],[34,37,13],[4,151,121,5,152,122],[4,75,47,14,76,48],[11,54,24,14,55,25],[16,45,15,14,46,16],[6,147,117,4,148,118],[6,73,45,14,74,46],[11,54,24,16,55,25],[30,46,16,2,47,17],[8,132,106,4,133,107],[8,75,47,13,76,48],[7,54,24,22,55,25],[22,45,15,13,46,16],[10,142,114,2,143,115],[19,74,46,4,75,47],[28,50,22,6,51,23],[33,46,16,4,47,17],[8,152,122,4,153,123],[22,73,45,3,74,46],[8,53,23,26,54,24],[12,45,15,28,46,16],[3,147,117,10,148,118],[3,73,45,23,74,46],[4,54,24,31,55,25],[11,45,15,31,46,16],[7,146,116,7,147,117],[21,73,45,7,74,46],[1,53,23,37,54,24],[19,45,15,26,46,16],[5,145,115,10,146,116],[19,75,47,10,76,48],[15,54,24,25,55,25],[23,45,15,25,46,16],[13,145,115,3,146,116],[2,74,46,29,75,47],[42,54,24,1,55,25],[23,45,15,28,46,16],[17,145,115],[10,74,46,23,75,47],[10,54,24,35,55,25],[19,45,15,35,46,16],[17,145,115,1,146,116],[14,74,46,21,75,47],[29,54,24,19,55,25],[11,45,15,46,46,16],[13,145,115,6,146,116],[14,74,46,23,75,47],[44,54,24,7,55,25],[59,46,16,1,47,17],[12,151,121,7,152,122],[12,75,47,26,76,48],[39,54,24,14,55,25],[22,45,15,41,46,16],[6,151,121,14,152,122],[6,75,47,34,76,48],[46,54,24,10,55,25],[2,45,15,64,46,16],[17,152,122,4,153,123],[29,74,46,14,75,47],[49,54,24,10,55,25],[24,45,15,46,46,16],[4,152,122,18,153,123],[13,74,46,32,75,47],[48,54,24,14,55,25],[42,45,15,32,46,16],[20,147,117,4,148,118],[40,75,47,7,76,48],[43,54,24,22,55,25],[10,45,15,67,46,16],[19,148,118,6,149,119],[18,75,47,31,76,48],[34,54,24,34,55,25],[20,45,15,61,46,16]];QRRSBlock.getRSBlocks=function(typeNumber,errorCorrectLevel){var rsBlock=QRRSBlock.getRsBlockTable(typeNumber,errorCorrectLevel);if(rsBlock==undefined){throw new Error("bad rs block @ typeNumber:"+typeNumber+"/errorCorrectLevel:"+errorCorrectLevel);}
+	var length=rsBlock.length/3;var list=[];for(var i=0;i<length;i++){var count=rsBlock[i*3+0];var totalCount=rsBlock[i*3+1];var dataCount=rsBlock[i*3+2];for(var j=0;j<count;j++){list.push(new QRRSBlock(totalCount,dataCount));}}
+	return list;};QRRSBlock.getRsBlockTable=function(typeNumber,errorCorrectLevel){switch(errorCorrectLevel){case QRErrorCorrectLevel.L:return QRRSBlock.RS_BLOCK_TABLE[(typeNumber-1)*4+0];case QRErrorCorrectLevel.M:return QRRSBlock.RS_BLOCK_TABLE[(typeNumber-1)*4+1];case QRErrorCorrectLevel.Q:return QRRSBlock.RS_BLOCK_TABLE[(typeNumber-1)*4+2];case QRErrorCorrectLevel.H:return QRRSBlock.RS_BLOCK_TABLE[(typeNumber-1)*4+3];default:return undefined;}};function QRBitBuffer(){this.buffer=[];this.length=0;}
+	QRBitBuffer.prototype={get:function(index){var bufIndex=Math.floor(index/8);return((this.buffer[bufIndex]>>>(7-index%8))&1)==1;},put:function(num,length){for(var i=0;i<length;i++){this.putBit(((num>>>(length-i-1))&1)==1);}},getLengthInBits:function(){return this.length;},putBit:function(bit){var bufIndex=Math.floor(this.length/8);if(this.buffer.length<=bufIndex){this.buffer.push(0);}
+	if(bit){this.buffer[bufIndex]|=(0x80>>>(this.length%8));}
+	this.length++;}};var QRCodeLimitLength=[[17,14,11,7],[32,26,20,14],[53,42,32,24],[78,62,46,34],[106,84,60,44],[134,106,74,58],[154,122,86,64],[192,152,108,84],[230,180,130,98],[271,213,151,119],[321,251,177,137],[367,287,203,155],[425,331,241,177],[458,362,258,194],[520,412,292,220],[586,450,322,250],[644,504,364,280],[718,560,394,310],[792,624,442,338],[858,666,482,382],[929,711,509,403],[1003,779,565,439],[1091,857,611,461],[1171,911,661,511],[1273,997,715,535],[1367,1059,751,593],[1465,1125,805,625],[1528,1190,868,658],[1628,1264,908,698],[1732,1370,982,742],[1840,1452,1030,790],[1952,1538,1112,842],[2068,1628,1168,898],[2188,1722,1228,958],[2303,1809,1283,983],[2431,1911,1351,1051],[2563,1989,1423,1093],[2699,2099,1499,1139],[2809,2213,1579,1219],[2953,2331,1663,1273]];
+	
+	function _isSupportCanvas() {
+		return typeof CanvasRenderingContext2D != "undefined";
+	}
+	
+	// android 2.x doesn't support Data-URI spec
+	function _getAndroid() {
+		var android = false;
+		var sAgent = navigator.userAgent;
+		
+		if (/android/i.test(sAgent)) { // android
+			android = true;
+			var aMat = sAgent.toString().match(/android ([0-9]\.[0-9])/i);
+			
+			if (aMat && aMat[1]) {
+				android = parseFloat(aMat[1]);
+			}
+		}
+		
+		return android;
+	}
+	
+	var svgDrawer = (function() {
+
+		var Drawing = function (el, htOption) {
+			this._el = el;
+			this._htOption = htOption;
+		};
+
+		Drawing.prototype.draw = function (oQRCode) {
+			var _htOption = this._htOption;
+			var _el = this._el;
+			var nCount = oQRCode.getModuleCount();
+			var nWidth = Math.floor(_htOption.width / nCount);
+			var nHeight = Math.floor(_htOption.height / nCount);
+
+			this.clear();
+
+			function makeSVG(tag, attrs) {
+				var el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+				for (var k in attrs)
+					if (attrs.hasOwnProperty(k)) el.setAttribute(k, attrs[k]);
+				return el;
+			}
+
+			var svg = makeSVG("svg" , {'viewBox': '0 0 ' + String(nCount) + " " + String(nCount), 'width': '100%', 'height': '100%', 'fill': _htOption.colorLight});
+			svg.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink");
+			_el.appendChild(svg);
+
+			svg.appendChild(makeSVG("rect", {"fill": _htOption.colorLight, "width": "100%", "height": "100%"}));
+			svg.appendChild(makeSVG("rect", {"fill": _htOption.colorDark, "width": "1", "height": "1", "id": "template"}));
+
+			for (var row = 0; row < nCount; row++) {
+				for (var col = 0; col < nCount; col++) {
+					if (oQRCode.isDark(row, col)) {
+						var child = makeSVG("use", {"x": String(col), "y": String(row)});
+						child.setAttributeNS("http://www.w3.org/1999/xlink", "href", "#template")
+						svg.appendChild(child);
+					}
+				}
+			}
+		};
+		Drawing.prototype.clear = function () {
+			while (this._el.hasChildNodes())
+				this._el.removeChild(this._el.lastChild);
+		};
+		return Drawing;
+	})();
+
+	var useSVG = document.documentElement.tagName.toLowerCase() === "svg";
+
+	// Drawing in DOM by using Table tag
+	var Drawing = useSVG ? svgDrawer : !_isSupportCanvas() ? (function () {
+		var Drawing = function (el, htOption) {
+			this._el = el;
+			this._htOption = htOption;
+		};
+			
+		/**
+		 * Draw the QRCode
+		 * 
+		 * @param {QRCode} oQRCode
+		 */
+		Drawing.prototype.draw = function (oQRCode) {
+            var _htOption = this._htOption;
+            var _el = this._el;
+			var nCount = oQRCode.getModuleCount();
+			var nWidth = Math.floor(_htOption.width / nCount);
+			var nHeight = Math.floor(_htOption.height / nCount);
+			var aHTML = ['<table style="border:0;border-collapse:collapse;">'];
+			
+			for (var row = 0; row < nCount; row++) {
+				aHTML.push('<tr>');
+				
+				for (var col = 0; col < nCount; col++) {
+					aHTML.push('<td style="border:0;border-collapse:collapse;padding:0;margin:0;width:' + nWidth + 'px;height:' + nHeight + 'px;background-color:' + (oQRCode.isDark(row, col) ? _htOption.colorDark : _htOption.colorLight) + ';"></td>');
+				}
+				
+				aHTML.push('</tr>');
+			}
+			
+			aHTML.push('</table>');
+			_el.innerHTML = aHTML.join('');
+			
+			// Fix the margin values as real size.
+			var elTable = _el.childNodes[0];
+			var nLeftMarginTable = (_htOption.width - elTable.offsetWidth) / 2;
+			var nTopMarginTable = (_htOption.height - elTable.offsetHeight) / 2;
+			
+			if (nLeftMarginTable > 0 && nTopMarginTable > 0) {
+				elTable.style.margin = nTopMarginTable + "px " + nLeftMarginTable + "px";	
+			}
+		};
+		
+		/**
+		 * Clear the QRCode
+		 */
+		Drawing.prototype.clear = function () {
+			this._el.innerHTML = '';
+		};
+		
+		return Drawing;
+	})() : (function () { // Drawing in Canvas
+		function _onMakeImage() {
+			this._elImage.src = this._elCanvas.toDataURL("image/png");
+			this._elImage.style.display = "block";
+			this._elCanvas.style.display = "none";			
+		}
+		
+		// Android 2.1 bug workaround
+		// http://code.google.com/p/android/issues/detail?id=5141
+		if (this._android && this._android <= 2.1) {
+	    	var factor = 1 / window.devicePixelRatio;
+	        var drawImage = CanvasRenderingContext2D.prototype.drawImage; 
+	    	CanvasRenderingContext2D.prototype.drawImage = function (image, sx, sy, sw, sh, dx, dy, dw, dh) {
+	    		if (("nodeName" in image) && /img/i.test(image.nodeName)) {
+		        	for (var i = arguments.length - 1; i >= 1; i--) {
+		            	arguments[i] = arguments[i] * factor;
+		        	}
+	    		} else if (typeof dw == "undefined") {
+	    			arguments[1] *= factor;
+	    			arguments[2] *= factor;
+	    			arguments[3] *= factor;
+	    			arguments[4] *= factor;
+	    		}
+	    		
+	        	drawImage.apply(this, arguments); 
+	    	};
+		}
+		
+		/**
+		 * Check whether the user's browser supports Data URI or not
+		 * 
+		 * @private
+		 * @param {Function} fSuccess Occurs if it supports Data URI
+		 * @param {Function} fFail Occurs if it doesn't support Data URI
+		 */
+		function _safeSetDataURI(fSuccess, fFail) {
+            var self = this;
+            self._fFail = fFail;
+            self._fSuccess = fSuccess;
+
+            // Check it just once
+            if (self._bSupportDataURI === null) {
+                var el = document.createElement("img");
+                var fOnError = function() {
+                    self._bSupportDataURI = false;
+
+                    if (self._fFail) {
+                        self._fFail.call(self);
+                    }
+                };
+                var fOnSuccess = function() {
+                    self._bSupportDataURI = true;
+
+                    if (self._fSuccess) {
+                        self._fSuccess.call(self);
+                    }
+                };
+
+                el.onabort = fOnError;
+                el.onerror = fOnError;
+                el.onload = fOnSuccess;
+                el.src = "data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg=="; // the Image contains 1px data.
+                return;
+            } else if (self._bSupportDataURI === true && self._fSuccess) {
+                self._fSuccess.call(self);
+            } else if (self._bSupportDataURI === false && self._fFail) {
+                self._fFail.call(self);
+            }
+		};
+		
+		/**
+		 * Drawing QRCode by using canvas
+		 * 
+		 * @constructor
+		 * @param {HTMLElement} el
+		 * @param {Object} htOption QRCode Options 
+		 */
+		var Drawing = function (el, htOption) {
+    		this._bIsPainted = false;
+    		this._android = _getAndroid();
+		
+			this._htOption = htOption;
+			this._elCanvas = document.createElement("canvas");
+			this._elCanvas.width = htOption.width;
+			this._elCanvas.height = htOption.height;
+			el.appendChild(this._elCanvas);
+			this._el = el;
+			this._oContext = this._elCanvas.getContext("2d");
+			this._bIsPainted = false;
+			this._elImage = document.createElement("img");
+			this._elImage.alt = "Scan me!";
+			this._elImage.style.display = "none";
+			this._el.appendChild(this._elImage);
+			this._bSupportDataURI = null;
+		};
+			
+		/**
+		 * Draw the QRCode
+		 * 
+		 * @param {QRCode} oQRCode 
+		 */
+		Drawing.prototype.draw = function (oQRCode) {
+            var _elImage = this._elImage;
+            var _oContext = this._oContext;
+            var _htOption = this._htOption;
+            
+			var nCount = oQRCode.getModuleCount();
+			var nWidth = _htOption.width / nCount;
+			var nHeight = _htOption.height / nCount;
+			var nRoundedWidth = Math.round(nWidth);
+			var nRoundedHeight = Math.round(nHeight);
+
+			_elImage.style.display = "none";
+			this.clear();
+			
+			for (var row = 0; row < nCount; row++) {
+				for (var col = 0; col < nCount; col++) {
+					var bIsDark = oQRCode.isDark(row, col);
+					var nLeft = col * nWidth;
+					var nTop = row * nHeight;
+					_oContext.strokeStyle = bIsDark ? _htOption.colorDark : _htOption.colorLight;
+					_oContext.lineWidth = 1;
+					_oContext.fillStyle = bIsDark ? _htOption.colorDark : _htOption.colorLight;					
+					_oContext.fillRect(nLeft, nTop, nWidth, nHeight);
+					
+					// 안티 앨리어싱 방지 처리
+					_oContext.strokeRect(
+						Math.floor(nLeft) + 0.5,
+						Math.floor(nTop) + 0.5,
+						nRoundedWidth,
+						nRoundedHeight
+					);
+					
+					_oContext.strokeRect(
+						Math.ceil(nLeft) - 0.5,
+						Math.ceil(nTop) - 0.5,
+						nRoundedWidth,
+						nRoundedHeight
+					);
+				}
+			}
+			
+			this._bIsPainted = true;
+		};
+			
+		/**
+		 * Make the image from Canvas if the browser supports Data URI.
+		 */
+		Drawing.prototype.makeImage = function () {
+			if (this._bIsPainted) {
+				_safeSetDataURI.call(this, _onMakeImage);
+			}
+		};
+			
+		/**
+		 * Return whether the QRCode is painted or not
+		 * 
+		 * @return {Boolean}
+		 */
+		Drawing.prototype.isPainted = function () {
+			return this._bIsPainted;
+		};
+		
+		/**
+		 * Clear the QRCode
+		 */
+		Drawing.prototype.clear = function () {
+			this._oContext.clearRect(0, 0, this._elCanvas.width, this._elCanvas.height);
+			this._bIsPainted = false;
+		};
+		
+		/**
+		 * @private
+		 * @param {Number} nNumber
+		 */
+		Drawing.prototype.round = function (nNumber) {
+			if (!nNumber) {
+				return nNumber;
+			}
+			
+			return Math.floor(nNumber * 1000) / 1000;
+		};
+		
+		return Drawing;
+	})();
+	
+	/**
+	 * Get the type by string length
+	 * 
+	 * @private
+	 * @param {String} sText
+	 * @param {Number} nCorrectLevel
+	 * @return {Number} type
+	 */
+	function _getTypeNumber(sText, nCorrectLevel) {			
+		var nType = 1;
+		var length = _getUTF8Length(sText);
+		
+		for (var i = 0, len = QRCodeLimitLength.length; i <= len; i++) {
+			var nLimit = 0;
+			
+			switch (nCorrectLevel) {
+				case QRErrorCorrectLevel.L :
+					nLimit = QRCodeLimitLength[i][0];
+					break;
+				case QRErrorCorrectLevel.M :
+					nLimit = QRCodeLimitLength[i][1];
+					break;
+				case QRErrorCorrectLevel.Q :
+					nLimit = QRCodeLimitLength[i][2];
+					break;
+				case QRErrorCorrectLevel.H :
+					nLimit = QRCodeLimitLength[i][3];
+					break;
+			}
+			
+			if (length <= nLimit) {
+				break;
+			} else {
+				nType++;
+			}
+		}
+		
+		if (nType > QRCodeLimitLength.length) {
+			throw new Error("Too long data");
+		}
+		
+		return nType;
+	}
+
+	function _getUTF8Length(sText) {
+		var replacedText = encodeURI(sText).toString().replace(/\%[0-9a-fA-F]{2}/g, 'a');
+		return replacedText.length + (replacedText.length != sText ? 3 : 0);
+	}
+	
+	/**
+	 * @class QRCode
+	 * @constructor
+	 * @example 
+	 * new QRCode(document.getElementById("test"), "http://jindo.dev.naver.com/collie");
+	 *
+	 * @example
+	 * var oQRCode = new QRCode("test", {
+	 *    text : "http://naver.com",
+	 *    width : 128,
+	 *    height : 128
+	 * });
+	 * 
+	 * oQRCode.clear(); // Clear the QRCode.
+	 * oQRCode.makeCode("http://map.naver.com"); // Re-create the QRCode.
+	 *
+	 * @param {HTMLElement|String} el target element or 'id' attribute of element.
+	 * @param {Object|String} vOption
+	 * @param {String} vOption.text QRCode link data
+	 * @param {Number} [vOption.width=256]
+	 * @param {Number} [vOption.height=256]
+	 * @param {String} [vOption.colorDark="#000000"]
+	 * @param {String} [vOption.colorLight="#ffffff"]
+	 * @param {QRCode.CorrectLevel} [vOption.correctLevel=QRCode.CorrectLevel.H] [L|M|Q|H] 
+	 */
+	QRCode = function (el, vOption) {
+		this._htOption = {
+			width : 256, 
+			height : 256,
+			typeNumber : 4,
+			colorDark : "#000000",
+			colorLight : "#ffffff",
+			correctLevel : QRErrorCorrectLevel.H
+		};
+		
+		if (typeof vOption === 'string') {
+			vOption	= {
+				text : vOption
+			};
+		}
+		
+		// Overwrites options
+		if (vOption) {
+			for (var i in vOption) {
+				this._htOption[i] = vOption[i];
+			}
+		}
+		
+		if (typeof el == "string") {
+			el = document.getElementById(el);
+		}
+
+		if (this._htOption.useSVG) {
+			Drawing = svgDrawer;
+		}
+		
+		this._android = _getAndroid();
+		this._el = el;
+		this._oQRCode = null;
+		this._oDrawing = new Drawing(this._el, this._htOption);
+		
+		if (this._htOption.text) {
+			this.makeCode(this._htOption.text);	
+		}
+	};
+	
+	/**
+	 * Make the QRCode
+	 * 
+	 * @param {String} sText link data
+	 */
+	QRCode.prototype.makeCode = function (sText) {
+		this._oQRCode = new QRCodeModel(_getTypeNumber(sText, this._htOption.correctLevel), this._htOption.correctLevel);
+		this._oQRCode.addData(sText);
+		this._oQRCode.make();
+		this._el.title = sText;
+		this._oDrawing.draw(this._oQRCode);			
+		this.makeImage();
+	};
+	
+	/**
+	 * Make the Image from Canvas element
+	 * - It occurs automatically
+	 * - Android below 3 doesn't support Data-URI spec.
+	 * 
+	 * @private
+	 */
+	QRCode.prototype.makeImage = function () {
+		if (typeof this._oDrawing.makeImage == "function" && (!this._android || this._android >= 3)) {
+			this._oDrawing.makeImage();
+		}
+	};
+	
+	/**
+	 * Clear the QRCode
+	 */
+	QRCode.prototype.clear = function () {
+		this._oDrawing.clear();
+	};
+	
+	/**
+	 * @name QRCode.CorrectLevel
+	 */
+	QRCode.CorrectLevel = QRErrorCorrectLevel;
+})();
+
+</script>
+<!-- QR Code scanner (lector cámara) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, setDoc, getDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBSuqqp1prL9XKZCo5KsKx_t3x6_4WQtYU",
+  authDomain: "sopena-chapas.firebaseapp.com",
+  projectId: "sopena-chapas",
+  storageBucket: "sopena-chapas.firebasestorage.app",
+  messagingSenderId: "466437193131",
+  appId: "1:466437193131:web:ccacaafcd3ce75708be6ee",
+  measurementId: "G-01MK7TM5JX"
+};
+
+const ADMINS = ["scandela@gruposopena.com","recepcion.acabados@gruposopena.com"];
+const USUARIOS = ["jlozano@catedier.com"];
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+const paletsCol = collection(db, "palets");
+const operariosCol = collection(db, "operarios_tiempo");
+const historialCol = collection(db, "historial_tiempo");
+
+let DB = [];
+let currentUser = null;
+let isAdmin = false;
+let isUser = false;
+let cierreId = null;
+let unsubscribe = null;
+
+// ── Estado del módulo de tiempos (sincronizado con Firestore) ──
+let OPERARIOS = [];
+let HISTORIAL  = [];
+let unsubOperarios = null;
+let unsubHistorial = null;
+let fichajosHoy = [];
+let timerInterval = null;
+let html5QrCode = null;
+let scannerActivo = false;
+let ultimoQR = ''; let ultimoQRts = 0;
+
+const g = id => document.getElementById(id);
+
+// ── TOAST ──
+function showToast(msg, type='ok') {
+  const t = g('toast');
+  t.className = `toast ${type}-toast show`;
+  t.innerHTML = `<i class="ti ti-${type==='ok'?'circle-check':'alert-triangle'}"></i> ${msg}`;
+  setTimeout(()=>t.classList.remove('show'), 3000);
+}
+
+// ── SYNC DOT ──
+const setSyncState = s => {
+  const dot=g('sync-dot'),lbl=g('sync-label');
+  if(!dot) return;
+  if(s==='ok'){dot.className='sync-dot';lbl.textContent='Conectado';}
+  else if(s==='sync'){dot.className='sync-dot syncing';lbl.textContent='Guardando...';}
+  else{dot.className='sync-dot error';lbl.textContent='Sin conexión';}
+};
+
+// ══════════════════════════════════════
+// LOGIN / AUTH
+// ══════════════════════════════════════
+window.doLogin = async () => {
+  const email=g('l-email').value.trim(), pass=g('l-pass').value;
+  g('l-err').classList.remove('show');
+  g('login-screen').style.display='none';
+  g('loading-screen').style.display='flex';
+  try { await signInWithEmailAndPassword(auth,email,pass); }
+  catch(e){ g('loading-screen').style.display='none'; g('login-screen').style.display='flex'; g('l-err').classList.add('show'); }
+};
+g('l-pass').addEventListener('keydown',e=>{ if(e.key==='Enter') window.doLogin(); });
+g('l-email').addEventListener('keydown',e=>{ if(e.key==='Enter') g('l-pass').focus(); });
+
+window.doLogout = async () => { await signOut(auth); };
+
+onAuthStateChanged(auth, user => {
+  if(user){
+    currentUser=user;
+    isAdmin=ADMINS.includes(user.email.toLowerCase());
+    isUser=!isAdmin&&USUARIOS.includes(user.email.toLowerCase());
+    g('loading-screen').style.display='none';
+    g('login-screen').style.display='none';
+    g('app').style.display='block';
+    setupUI();
+    startListener();
+    iniciarTimerGlobal();
+    actualizarKpisTiempos();
+  } else {
+    currentUser=null; isAdmin=false; isUser=false;
+    g('app').style.display='none';
+    g('loading-screen').style.display='none';
+    g('login-screen').style.display='flex';
+    if(unsubscribe){unsubscribe();unsubscribe=null;}
+    if(unsubOperarios){unsubOperarios();unsubOperarios=null;}
+    if(unsubHistorial){unsubHistorial();unsubHistorial=null;}
+    if(timerInterval){clearInterval(timerInterval);timerInterval=null;}
+    if(scannerActivo) detenerCamara();
+  }
+});
+
+function setupUI(){
+  if(!currentUser) return;
+  const name=currentUser.email.split('@')[0];
+  const dn=name.charAt(0).toUpperCase()+name.slice(1);
+  const av=g('user-av'); if(av) av.textContent=dn.charAt(0).toUpperCase();
+  const un=g('user-name'); if(un) un.textContent=dn;
+  const ur=g('user-role-label'); if(ur) ur.textContent=isAdmin?'Administrador':isUser?'Usuario':'Operario';
+  document.querySelectorAll('.admin-only').forEach(el=>el.style.display=(isAdmin||isUser)?'':'none');
+  document.querySelectorAll('.create-only').forEach(el=>el.style.display=isAdmin?'':'none');
+  const td=g('topdate'); if(td) td.textContent=new Date().toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+  g('tm-fecha-hoy').textContent=new Date().toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'});
+}
+
+// ══════════════════════════════════════
+// NAV
+// ══════════════════════════════════════
+document.querySelectorAll('.ntab').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    if(!isAdmin&&!isUser&&(btn.dataset.v==='clientes'||btn.dataset.v==='tiempos')) return;
+    document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+    const v=btn.dataset.v;
+    g('page-'+v).classList.add('on');
+    if(v==='dashboard') renderDash();
+    if(v==='palets') renderPalets();
+    if(v==='operario') window.renderOp();
+    if(v==='clientes') renderCli();
+    if(v==='tiempos'){ renderMonitor(); actualizarKpisTiempos(); }
+    if(v!=='tiempos'&&scannerActivo) detenerCamara();
+  });
+});
+
+function openOv(id){g(id).classList.add('on');}
+function closeOv(id){g(id).classList.remove('on');}
+window.openOv=openOv; window.closeOv=closeOv;
+
+// ══════════════════════════════════════
+// FIRESTORE LISTENER
+// ══════════════════════════════════════
+function startListener(){
+  const q=query(paletsCol,orderBy("fechaCreacion","desc"));
+  unsubscribe=onSnapshot(q,snap=>{
+    DB=snap.docs.map(d=>({firestoreId:d.id,...d.data()}));
+    renderDash();
+    const av=document.querySelector('.ntab.active')?.dataset.v;
+    if(av==='palets') renderPalets();
+    if(av==='operario') window.renderOp();
+    if(av==='clientes') renderCli();
+    if(av==='tiempos'){ const subActive=document.querySelector('.sub-tab.active')?.textContent?.trim(); if(g('sub-productividad')?.classList.contains('active')) window.renderProductividad(); }
+    setSyncState('ok');
+  },()=>setSyncState('error'));
+
+  // Listener en tiempo real para OPERARIOS (control de tiempos)
+  unsubOperarios = onSnapshot(doc(db,'tiempos_meta','operarios'), snap => {
+    OPERARIOS = snap.exists() ? (snap.data().lista || []) : [];
+    const av=document.querySelector('.ntab.active')?.dataset.v;
+    if(typeof renderMonitor==='function') renderMonitor();
+    if(typeof actualizarKpisTiempos==='function') actualizarKpisTiempos();
+    if(typeof renderEtiquetas==='function' && av==='tiempos') renderEtiquetas();
+  }, err => console.warn('Error escuchando operarios', err));
+
+  // Listener en tiempo real para HISTORIAL (control de tiempos)
+  unsubHistorial = onSnapshot(doc(db,'tiempos_meta','historial'), snap => {
+    HISTORIAL = snap.exists() ? (snap.data().lista || []) : [];
+    if(typeof renderHistorial==='function') renderHistorial();
+    if(typeof actualizarKpisTiempos==='function') actualizarKpisTiempos();
+    if(typeof renderLogFichajes==='function') renderLogFichajes();
+  }, err => console.warn('Error escuchando historial', err));
+}
+
+// ══════════════════════════════════════
+// HELPERS PALETS
+// ══════════════════════════════════════
+function badge(p){
+  const m={
+    abierto:`<span class="badge bopen"><span class="dot dblue"></span>Abierto</span>`,
+    proceso:`<span class="badge bprog"><span class="dot dprog"></span>En proceso</span>`,
+    cerrado_ok:`<span class="badge bok"><span class="dot dok"></span>Cerrado OK</span>`,
+    cerrado_diff:`<span class="badge bdiff2"><span class="dot ddiff"></span>−${Math.abs(p.diferencia||0)} uds</span>`
+  };
+  return m[p.estado]||'';
+}
+function pbar(p){
+  const t=p.chapasOk+p.chapasDevolucion+p.chapasChatarra;
+  const pct=p.chapasEntrada>0?Math.min(100,Math.round(t/p.chapasEntrada*100)):0;
+  return `<div style="display:flex;align-items:center;gap:5px"><div class="pbar"><div class="pbar-f" style="width:${pct}%"></div></div><span style="font-size:10px;color:var(--sp-muted)">${pct}%</span></div>`;
+}
+
+// ══════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════
+function renderDash(){
+  g('dash-date').textContent=new Date().toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  g('st-t').textContent=DB.length;
+  g('st-a').textContent=DB.filter(p=>p.estado==='abierto').length;
+  g('st-p').textContent=DB.filter(p=>p.estado==='proceso').length;
+  g('st-ok').textContent=DB.filter(p=>p.estado==='cerrado_ok').length;
+  g('st-d').textContent=DB.filter(p=>p.estado==='cerrado_diff').length;
+  const ep=g('st-pend');
+  if(ep){const tot=DB.filter(p=>p.estado==='abierto'||p.estado==='proceso').reduce((s,p)=>s+Math.max(0,p.chapasEntrada-(p.chapasOk+p.chapasDevolucion+p.chapasChatarra)),0);ep.textContent=tot;}
+  const tb=g('dash-tb');
+  if(!DB.length){tb.innerHTML=`<tr><td colspan="9"><div class="empty"><i class="ti ti-stack-2"></i><p>${isAdmin?'Crea el primer palet con "Nuevo palet"':'No hay palets'}</p></div></td></tr>`;return;}
+  tb.innerHTML=DB.slice(0,12).map(p=>{
+    const proc=p.chapasOk+p.chapasDevolucion+p.chapasChatarra;
+    return `<tr><td class="mono">${p.num}</td><td>${p.pedCli||'—'}</td><td>${p.pedLib||'—'}</td><td>${p.cliente}</td><td>${p.acabado}</td><td>${p.medida}</td><td>${p.chapasEntrada}</td><td>${proc}</td><td>${badge(p)}</td></tr>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════
+// PALETS
+// ══════════════════════════════════════
+function renderPalets(){
+  const fc=(g('f-cli').value||'').toLowerCase();
+  const fp=(g('f-ped').value||'').toLowerCase();
+  const fe=g('f-est').value;
+  let list=DB.filter(p=>{
+    if(fc&&!p.cliente.toLowerCase().includes(fc)) return false;
+    if(fp&&!(p.pedCli||'').toLowerCase().includes(fp)&&!(p.pedLib||'').toLowerCase().includes(fp)) return false;
+    if(fe&&p.estado!==fe) return false;
+    return true;
+  });
+  g('pal-count').textContent=`${list.length} palet${list.length!==1?'s':''}`;
+  const tb=g('pal-tb');
+  if(!list.length){tb.innerHTML=`<tr><td colspan="14"><div class="empty"><i class="ti ti-search"></i><p>Sin resultados</p></div></td></tr>`;return;}
+  const cerrado=p=>p.estado==='cerrado_ok'||p.estado==='cerrado_diff';
+  tb.innerHTML=list.map(p=>`<tr>
+    <td class="mono">${p.num}</td><td>${p.pedCli||'—'}</td><td>${p.pedLib||'—'}</td>
+    <td>${p.cliente}</td><td>${p.acabado}</td><td>${p.medida}</td>
+    <td style="max-width:110px;overflow:hidden;text-overflow:ellipsis">${p.tratamiento||'—'}</td>
+    <td style="font-weight:600">${p.chapasEntrada}</td>
+    <td style="color:var(--sp-ok);font-weight:600">${p.chapasOk}</td>
+    <td style="color:var(--sp-dev);font-weight:600">${p.chapasDevolucion}</td>
+    <td style="color:var(--sp-danger);font-weight:600">${p.chapasChatarra}</td>
+    <td>${pbar(p)}</td><td>${badge(p)}</td>
+    <td><div style="display:flex;gap:3px;justify-content:center">
+      <button class="btn btn-sm btn-ico binfo" title="Ver OF" onclick="verOF('${p.firestoreId}')"><i class="ti ti-file-description" style="font-size:12px"></i></button>
+      ${(isAdmin||isUser)?`<button class="btn btn-sm btn-ico" title="Editar" onclick="abrirEditar('${p.firestoreId}')" style="color:var(--sp-warn);border-color:#fcd34d;background:transparent"><i class="ti ti-edit" style="font-size:12px"></i></button>`:''}
+      ${(isAdmin||isUser)&&!cerrado(p)?`<button class="btn btn-sm btn-ico bsuccess" title="Cerrar" onclick="abrirCierre('${p.firestoreId}')"><i class="ti ti-lock" style="font-size:12px"></i></button>`:''}
+      ${isAdmin?`<button class="btn btn-sm btn-ico bdanger" title="Eliminar" onclick="eliminar('${p.firestoreId}')"><i class="ti ti-trash" style="font-size:12px"></i></button>`:''}
+    </div></td>
+  </tr>`).join('');
+}
+window.renderPalets=renderPalets;
+
+// ══════════════════════════════════════
+// OPERARIO
+// ══════════════════════════════════════
+window.renderOp = function(){
+  try {
+    _renderOpInner();
+  } catch(e) {
+    console.error('Error en renderOp:', e);
+    const c=g('op-list');
+    if(c) c.innerHTML = `<div class="empty"><i class="ti ti-alert-triangle"></i><p>Error al cargar la lista. Revisa la consola (F12).</p></div>`;
+  }
+};
+function _renderOpInner(){
+  const search=(g('op-search')?.value||'').toLowerCase().trim();
+  const activos=DB.filter(p=>{
+    if(p.estado!=='abierto'&&p.estado!=='proceso') return false;
+    if(!search) return true;
+    const cliente=String(p.cliente||'').toLowerCase();
+    const pedCli=String(p.pedCli||'').toLowerCase();
+    const pedLib=String(p.pedLib||'').toLowerCase();
+    const num=String(p.num||'').toLowerCase();
+    return cliente.includes(search)||pedCli.includes(search)||pedLib.includes(search)||num.includes(search);
+  });
+  const c=g('op-list');
+  if(!activos.length){c.innerHTML=`<div class="empty"><i class="ti ti-tool"></i><p>No hay palets activos</p></div>`;return;}
+  c.innerHTML=activos.map(p=>{
+    const proc=p.chapasOk+p.chapasDevolucion+p.chapasChatarra;
+    const falta=Math.max(0,p.chapasEntrada-proc);
+    return `<div class="op-card">
+      <div class="op-hd">
+        <div>
+          <div class="op-num">${p.num} <span style="color:rgba(255,255,255,0.55);font-size:11px;font-weight:400">— ${p.cliente}</span></div>
+          <div class="op-meta">
+            <span class="op-chip">Acabado: <b>${p.acabado}</b></span>
+            <span class="op-chip">Medida: <b>${p.medida}</b></span>
+            <span class="op-chip">Tratamiento: <b>${p.tratamiento||'—'}</b></span>
+            <span class="op-chip">Ped. cliente: <b>${p.pedCli||'—'}</b></span>
+            <span class="op-chip">Ped. Libra: <b>${p.pedLib||'—'}</b></span>
+          </div>
+        </div>
+        <div><div class="op-ent-lbl">Entradas</div><div class="op-ent-val">${p.chapasEntrada}</div></div>
+      </div>
+      <div class="op-body">
+        <div class="counters">
+          <div class="ctr"><div class="ctr-lbl">Buenas OK</div>
+            <input type="number" class="ctr-input inp-ok" value="${p.chapasOk}" min="0" onchange="updField('${p.firestoreId}','chapasOk',this.value)"></div>
+          <div class="ctr"><div class="ctr-lbl">Dev. cliente</div>
+            <input type="number" class="ctr-input inp-dev" value="${p.chapasDevolucion}" min="0" onchange="updField('${p.firestoreId}','chapasDevolucion',this.value)"></div>
+          <div class="ctr"><div class="ctr-lbl">Chatarra</div>
+            <input type="number" class="ctr-input inp-chat" value="${p.chapasChatarra}" min="0" onchange="updField('${p.firestoreId}','chapasChatarra',this.value)"></div>
+        </div>
+        <div class="op-stats">
+          <span>Procesadas: <b style="color:var(--sp-text)">${proc}</b> / ${p.chapasEntrada}</span>
+          <span style="color:${falta>0?'var(--sp-warn)':'var(--sp-ok)'};font-weight:600">Pendiente: ${falta}</span>
+        </div>
+        <div style="font-size:10px;color:var(--sp-muted);margin-bottom:10px;display:flex;align-items:center;gap:5px"><i class="ti ti-info-circle" style="font-size:12px"></i> Las cantidades de arriba ya se guardan automáticamente. Solo pulsa "Cerrar palet" cuando esté <b>totalmente terminado</b>.</div>
+        ${(isAdmin||isUser)?`<div class="cierre-wrap">
+          <div class="field"><label>Chapas al cerrar el palet (terminado)</label>
+            <input type="number" id="cop-${p.firestoreId}" placeholder="Total físico en palet" min="0"></div>
+          <button class="btn" style="background:var(--sp-danger);color:#fff;border-color:var(--sp-danger);font-weight:700" onclick="cerrarOp('${p.firestoreId}')" title="Solo si el palet está totalmente terminado"><i class="ti ti-lock"></i> Cerrar palet</button>
+        </div>
+        <div class="cres" id="cres-${p.firestoreId}"></div>`:''}
+      </div>
+      <div class="tiempo-section">
+        <div class="tiempo-title"><i class="ti ti-clock" style="font-size:13px"></i> Control de tiempo y operarios</div>
+        <div class="tiempo-grid">
+          <div class="tiempo-field"><label>Fecha</label><input type="date" id="t-fecha-${p.firestoreId}" value="${new Date().toISOString().slice(0,10)}"></div>
+          <div class="tiempo-field"><label>Hora inicio</label><input type="time" id="t-ini-${p.firestoreId}"></div>
+          <div class="tiempo-field"><label>Hora fin</label><input type="time" id="t-fin-${p.firestoreId}" oninput="calcHoras('${p.firestoreId}')"></div>
+        </div>
+        <div class="tiempo-grid" style="margin-top:6px;grid-template-columns:1fr 1fr">
+          <div class="tiempo-field"><label>Operario 1</label>
+            <select id="t-op-${p.firestoreId}" onchange="window.toggleOtroOp&&window.toggleOtroOp('${p.firestoreId}','1')">
+              <option value="">Selecciona operario...</option>
+              ${OPERARIOS.map(o=>`<option value="${o.nombre}">${o.nombre}</option>`).join('')}
+              <option value="__otro__">Otro (escribir nombre)</option>
+            </select>
+            <input type="text" id="t-op-otro-${p.firestoreId}" placeholder="Nombre del operario" style="display:none;margin-top:6px">
+          </div>
+          <div class="tiempo-field"><label>Operario 2 <span style="color:var(--sp-muted);font-weight:400;text-transform:none">(opcional)</span></label>
+            <select id="t-op2-${p.firestoreId}" onchange="window.toggleOtroOp&&window.toggleOtroOp('${p.firestoreId}','2')">
+              <option value="">Sin segundo operario</option>
+              ${OPERARIOS.map(o=>`<option value="${o.nombre}">${o.nombre}</option>`).join('')}
+              <option value="__otro__">Otro (escribir nombre)</option>
+            </select>
+            <input type="text" id="t-op2-otro-${p.firestoreId}" placeholder="Nombre del 2º operario" style="display:none;margin-top:6px">
+          </div>
+        </div>
+        <div class="tiempo-grid tiempo-grid-desc" style="margin-top:6px">
+          <div class="tiempo-field"><label>⏸ Descanso inicio</label><input type="time" id="t-desc-ini-${p.firestoreId}"></div>
+          <div class="tiempo-field"><label>⏸ Descanso fin</label><input type="time" id="t-desc-fin-${p.firestoreId}" oninput="calcHoras('${p.firestoreId}')"></div>
+          <div class="tiempo-field"><label>Notas</label><input type="text" id="t-notas-${p.firestoreId}" placeholder="Observaciones del turno..."></div>
+        </div>
+        <div class="tiempo-resultado">
+          <div class="tiempo-horas" id="t-horas-${p.firestoreId}"><i class="ti ti-clock" style="font-size:13px;color:var(--sp-muted)"></i><span style="color:var(--sp-muted)">Introduce horas para calcular</span></div>
+          <button class="btn bsuccess btn-sm" onclick="guardarTiempo('${p.firestoreId}')"><i class="ti ti-device-floppy"></i> Guardar registro</button>
+        </div>
+        ${(p.registrosTiempo&&p.registrosTiempo.length>0)?`<div class="tiempo-registros"><div class="tiempo-reg-title">Registros guardados</div>${p.registrosTiempo.map((r,i)=>`<div class="reg-row"><span class="reg-operario"><i class="ti ti-user" style="font-size:11px"></i> ${r.operario}</span><span class="reg-fecha">${r.fecha} · ${r.horaIni}→${r.horaFin}</span>${r.descMin?`<span class="descanso-tag">⏸ ${r.descMin}min</span>`:''}<span class="reg-horas">${r.horasNetas||r.horas}h netas</span>${r.chapasTurno!==undefined?`<span class="op-tag" title="Chapas procesadas en el palet durante este turno">📦 ${r.chapasTurno} chapas · ${r.ratioChapasMin||'0.00'}/min</span>`:''}<button class="btn btn-sm bdanger btn-ico" onclick="borrarTiempo('${p.firestoreId}',${i})"><i class="ti ti-trash" style="font-size:11px"></i></button></div>`).join('')}<div style="margin-top:6px;text-align:right"><span class="total-horas-bar"><i class="ti ti-clock"></i> Total: ${p.registrosTiempo.reduce((s,r)=>s+(parseFloat(r.horas)||0),0).toFixed(2)}h</span></div></div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+window.updField = async (fid,campo,val)=>{
+  const p=DB.find(x=>x.firestoreId===fid); if(!p) return;
+  const newVal=Math.max(0,parseInt(val)||0);
+  const update={[campo]:newVal};
+  if(p.estado==='abierto') update.estado='proceso';
+  setSyncState('sync');
+  try{ await updateDoc(doc(db,'palets',fid),update); setSyncState('ok'); }
+  catch(e){ setSyncState('error'); showToast('Error al guardar','err'); }
+};
+
+window.cerrarOp = async (fid)=>{
+  const p=DB.find(x=>x.firestoreId===fid);
+  const v=parseInt(g('cop-'+fid)?.value);
+  if(isNaN(v)||v<0){alert('Introduce el total de chapas');return;}
+  const procesadas = (parseInt(p.chapasOk)||0) + (parseInt(p.chapasDevolucion)||0) + (parseInt(p.chapasChatarra)||0);
+  const pendiente = Math.max(0, (parseInt(p.chapasEntrada)||0) - procesadas);
+  if(pendiente > 0){
+    const ok = confirm(`⚠️ ATENCIÓN: este palet todavía tiene ${pendiente} chapas SIN PROCESAR.\n\nSi cierras ahora, el palet desaparecerá de la vista Operario y nadie podrá seguir añadiendo chapas ni horas en el siguiente turno.\n\n¿Seguro que quieres CERRAR este palet definitivamente?\n\n(Si solo quieres guardar el progreso del turno, pulsa Cancelar — las cantidades ya se guardan automáticamente sin necesidad de cerrar)`);
+    if(!ok) return;
+  }
+  const diff=p.chapasEntrada-v;
+  setSyncState('sync');
+  try{
+    await updateDoc(doc(db,'palets',fid),{chapasCierre:v,diferencia:diff,fechaCierre:new Date().toLocaleDateString('es-ES'),estado:diff===0?'cerrado_ok':'cerrado_diff'});
+    const res=g('cres-'+fid);
+    if(res){if(diff===0){res.className='cres ok';res.innerHTML='<i class="ti ti-circle-check"></i> Palet cerrado — cuadra exactamente';}else{res.className='cres diff';res.innerHTML=`<i class="ti ti-alert-triangle"></i> Diferencia de <b>${Math.abs(diff)}</b> chapas`;}}
+    showToast(diff===0?'Cerrado OK':'Cerrado con diferencia',diff===0?'ok':'err');
+    setSyncState('ok');
+  }catch(e){setSyncState('error');showToast('Error','err');}
+};
+
+// ══════════════════════════════════════
+// TIEMPO (palet) — helpers
+// ══════════════════════════════════════
+window.toggleOtroOp = (fid, n) => {
+  const selId = n==='1' ? `t-op-${fid}` : `t-op2-${fid}`;
+  const otroId = n==='1' ? `t-op-otro-${fid}` : `t-op2-otro-${fid}`;
+  const sel = g(selId);
+  const otro = g(otroId);
+  if(!sel || !otro) return;
+  otro.style.display = (sel.value === '__otro__') ? 'block' : 'none';
+  if(sel.value !== '__otro__') otro.value = '';
+};
+
+window.calcHoras = (fid)=>{
+  const ini=g('t-ini-'+fid)?.value, fin=g('t-fin-'+fid)?.value;
+  const dIni=g('t-desc-ini-'+fid)?.value, dFin=g('t-desc-fin-'+fid)?.value;
+  const el=g('t-horas-'+fid); if(!el) return;
+  if(!ini||!fin){el.innerHTML='<i class="ti ti-clock" style="font-size:13px;color:var(--sp-muted)"></i><span style="color:var(--sp-muted)">Introduce horas para calcular</span>';return;}
+  const toMin=t=>{const[h,m]=t.split(':').map(Number);return h*60+m;};
+  let mins=toMin(fin)-toMin(ini);
+  if(mins<0) mins+=24*60;
+  let descMins=0;
+  if(dIni&&dFin){descMins=toMin(dFin)-toMin(dIni);if(descMins<0)descMins=0;}
+  const netos=Math.max(0,mins-descMins);
+  const fmt=m=>`${Math.floor(m/60)}h ${String(m%60).padStart(2,'0')}m`;
+  el.innerHTML=`<i class="ti ti-clock" style="font-size:13px;color:var(--sp-blue)"></i><span>Trabajo: <b>${fmt(mins)}</b>${descMins>0?` · Descanso: <b>${fmt(descMins)}</b>`:''} · <b style="color:var(--sp-ok)">Neto: ${fmt(netos)}</b></span>`;
+};
+
+window.guardarTiempo = async (fid)=>{
+  const p=DB.find(x=>x.firestoreId===fid); if(!p) return;
+  const fecha=g('t-fecha-'+fid)?.value, ini=g('t-ini-'+fid)?.value, fin=g('t-fin-'+fid)?.value;
+  const notas=g('t-notas-'+fid)?.value?.trim();
+  const dIni=g('t-desc-ini-'+fid)?.value, dFin=g('t-desc-fin-'+fid)?.value;
+
+  const resolverOperario = (selId, otroId) => {
+    const sel = g(selId)?.value || '';
+    if(sel === '__otro__') return (g(otroId)?.value || '').trim();
+    return sel.trim();
+  };
+  const op1 = resolverOperario('t-op-'+fid, 't-op-otro-'+fid);
+  const op2 = resolverOperario('t-op2-'+fid, 't-op2-otro-'+fid);
+  const op = op2 ? `${op1} + ${op2}` : op1;
+
+  if(!fecha||!ini||!fin||!op1){showToast('Completa fecha, horas y al menos un operario','err');return;}
+  const toMin=t=>{const[h,m]=t.split(':').map(Number);return h*60+m;};
+  let mins=toMin(fin)-toMin(ini); if(mins<0) mins+=24*60;
+  let desc=0; if(dIni&&dFin){desc=toMin(dFin)-toMin(dIni);if(desc<0)desc=0;}
+  const neto=Math.max(0,mins-desc);
+  // Chapas procesadas SOLO durante este turno: acumulado actual del palet menos el acumulado
+  // registrado en el último turno guardado (no el acumulado total del palet, para no duplicar
+  // el conteo cuando varios turnos trabajan el mismo palet en días distintos).
+  const chapasAcumuladoActual = (parseInt(p.chapasOk)||0) + (parseInt(p.chapasDevolucion)||0) + (parseInt(p.chapasChatarra)||0);
+  const registrosPrevios = p.registrosTiempo || [];
+  const ultimoAcumulado = registrosPrevios.length
+    ? Math.max(...registrosPrevios.map(r => r.chapasAcumuladoHasta!==undefined ? r.chapasAcumuladoHasta : (parseInt(r.chapasTurno)||0)))
+    : 0;
+  const chapasTurno = Math.max(0, chapasAcumuladoActual - ultimoAcumulado);
+  const ratioChapasMin = neto>0 ? (chapasTurno/neto) : 0;
+  const registro={fecha,horaIni:ini,horaFin:fin,operario:op,operario1:op1,operario2:op2||null,horas:(mins/60).toFixed(2),horasNetas:(neto/60).toFixed(2),descMin:desc,notas:notas||'',chapasTurno,chapasAcumuladoHasta:chapasAcumuladoActual,ratioChapasMin:ratioChapasMin.toFixed(2),paletNum:p.num,cliente:p.cliente};
+  const rts=[...(p.registrosTiempo||[]),registro];
+  setSyncState('sync');
+  try{
+    await updateDoc(doc(db,'palets',fid),{registrosTiempo:rts});
+    showToast('Registro guardado');setSyncState('ok');
+    ['t-ini-','t-fin-','t-notas-','t-desc-ini-','t-desc-fin-'].forEach(pf=>{const el=g(pf+fid);if(el)el.value='';});
+    ['t-op-','t-op2-'].forEach(pf=>{const el=g(pf+fid);if(el)el.value='';});
+    ['t-op-otro-','t-op2-otro-'].forEach(pf=>{const el=g(pf+fid);if(el){el.value='';el.style.display='none';}});
+    calcHoras(fid);
+  }catch(e){setSyncState('error');showToast('Error','err');}
+};
+
+window.borrarTiempo = async (fid,idx)=>{
+  if(!confirm('¿Eliminar este registro?')) return;
+  const p=DB.find(x=>x.firestoreId===fid); if(!p) return;
+  const rts=(p.registrosTiempo||[]).filter((_,i)=>i!==idx);
+  setSyncState('sync');
+  try{ await updateDoc(doc(db,'palets',fid),{registrosTiempo:rts}); showToast('Registro eliminado'); setSyncState('ok'); }
+  catch(e){ setSyncState('error'); showToast('Error','err'); }
+};
+
+// ── PRODUCTIVIDAD (chapas / minuto, basado en registrosTiempo de cada palet) ──
+window.renderProductividad = function(){
+  try { _renderProductividadInner(); }
+  catch(e){ console.error('Error en renderProductividad:', e); showToast('Error al cargar productividad — revisa la consola','err'); }
+};
+
+function _renderProductividadInner(){
+  // Recopilar todos los registros de tiempo de todos los palets
+  let todos = [];
+  DB.forEach(p => {
+    (p.registrosTiempo||[]).forEach(r => {
+      todos.push({
+        ...r,
+        paletNum: r.paletNum || p.num,
+        cliente: r.cliente || p.cliente,
+        chapasTurno: r.chapasTurno!==undefined ? r.chapasTurno : ((parseInt(p.chapasOk)||0)+(parseInt(p.chapasDevolucion)||0)+(parseInt(p.chapasChatarra)||0)),
+        horasNetasNum: parseFloat(r.horasNetas||r.horas||0)
+      });
+    });
+  });
+
+  const hoy = new Date().toISOString().slice(0,10);
+  const lunes = (() => { const d=new Date(); d.setDate(d.getDate()-d.getDay()+1); return d.toISOString().slice(0,10); })();
+
+  const fIni = g('prod-fecha-ini'), fFin = g('prod-fecha-fin');
+  if(fIni && !fIni.value) fIni.value = lunes;
+  if(fFin && !fFin.value) fFin.value = hoy;
+  const ini = fIni?.value || lunes;
+  const fin = fFin?.value || hoy;
+  const opF = (g('prod-op-filter')?.value||'').toLowerCase().trim();
+  const palF = g('prod-palet-filter')?.value || '';
+
+  // Rellenar selector de palets
+  const palSel = g('prod-palet-filter');
+  if(palSel){
+    const current = palSel.value;
+    const nums = [...new Set(todos.map(r=>r.paletNum).filter(Boolean))].sort();
+    palSel.innerHTML = '<option value="">Todos los palets</option>' + nums.map(n=>`<option value="${n}" ${current===n?'selected':''}>${n}</option>`).join('');
+  }
+
+  // Filtrar
+  const filtrados = todos.filter(r => {
+    if(!r.fecha) return false;
+    if(r.fecha<ini || r.fecha>fin) return false;
+    if(opF && !String(r.operario||'').toLowerCase().includes(opF)) return false;
+    if(palF && r.paletNum!==palF) return false;
+    return true;
+  });
+
+  // KPIs de hoy
+  const regsHoy = todos.filter(r=>r.fecha===hoy);
+  const chapasHoy = regsHoy.reduce((s,r)=>s+(parseInt(r.chapasTurno)||0),0);
+  const horasHoy = regsHoy.reduce((s,r)=>s+r.horasNetasNum,0);
+  const minHoy = horasHoy*60;
+  const ratioHoy = minHoy>0 ? (chapasHoy/minHoy) : 0;
+  const opsHoy = new Set(regsHoy.map(r=>r.operario)).size;
+
+  if(g('prod-chapas-hoy')) g('prod-chapas-hoy').textContent = chapasHoy;
+  if(g('prod-horas-hoy')) g('prod-horas-hoy').textContent = horasHoy.toFixed(2)+'h';
+  if(g('prod-ratio-hoy')) g('prod-ratio-hoy').textContent = minHoy>0 ? ratioHoy.toFixed(2)+'/min' : '—';
+  if(g('prod-ops-hoy')) g('prod-ops-hoy').textContent = opsHoy;
+
+  // Tabla detalle por turno
+  const tb = g('prod-tbody');
+  if(tb){
+    if(!filtrados.length){
+      tb.innerHTML = `<tr><td colspan="7"><div class="empty"><i class="ti ti-gauge"></i><p>No hay registros para el período seleccionado</p></div></td></tr>`;
+    } else {
+      const ordenados = [...filtrados].sort((a,b)=> a.fecha>b.fecha?-1:(a.fecha<b.fecha?1:0));
+      tb.innerHTML = ordenados.map(r => {
+        const mins = r.horasNetasNum*60;
+        const ratio = mins>0 ? (r.chapasTurno/mins) : 0;
+        return `<tr>
+          <td>${r.fecha}</td>
+          <td><span class="op-tag"><i class="ti ti-user" style="font-size:10px"></i> ${r.operario||'—'}</span></td>
+          <td class="mono">${r.paletNum||'—'}</td>
+          <td>${r.cliente||'—'}</td>
+          <td style="font-weight:600">${r.horasNetasNum.toFixed(2)}h</td>
+          <td>${r.chapasTurno||0}</td>
+          <td style="font-weight:700;color:var(--sp-navy)">${mins>0?ratio.toFixed(2):'—'}</td>
+        </tr>`;
+      }).join('');
+    }
+  }
+
+  // Resumen por operario y día
+  const resumen = {};
+  filtrados.forEach(r => {
+    const key = `${r.fecha}__${r.operario||'Sin nombre'}`;
+    if(!resumen[key]) resumen[key] = { fecha:r.fecha, operario:r.operario||'Sin nombre', turnos:0, horasNetas:0, chapas:0 };
+    resumen[key].turnos++;
+    resumen[key].horasNetas += r.horasNetasNum;
+    resumen[key].chapas += (parseInt(r.chapasTurno)||0);
+  });
+
+  const rtb = g('prod-resumen-tbody');
+  if(rtb){
+    const filas = Object.values(resumen).sort((a,b)=> a.fecha>b.fecha?-1:(a.fecha<b.fecha?1:0));
+    if(!filas.length){
+      rtb.innerHTML = `<tr><td colspan="6"><div class="empty"><p>Sin datos</p></div></td></tr>`;
+    } else {
+      rtb.innerHTML = filas.map(d => {
+        const mins = d.horasNetas*60;
+        const ratio = mins>0 ? (d.chapas/mins) : 0;
+        return `<tr>
+          <td>${d.fecha}</td>
+          <td><span class="op-tag"><i class="ti ti-user" style="font-size:10px"></i> ${d.operario}</span></td>
+          <td style="text-align:center">${d.turnos}</td>
+          <td style="font-weight:600">${d.horasNetas.toFixed(2)}h</td>
+          <td>${d.chapas}</td>
+          <td style="font-weight:700;color:var(--sp-navy)">${mins>0?ratio.toFixed(2):'—'}</td>
+        </tr>`;
+      }).join('');
+    }
+  }
+}
+window.renderProductividad = window.renderProductividad; // expose explicitly
+
+// ══════════════════════════════════════
+// NUEVO PALET
+// ══════════════════════════════════════
+window.openNuevo = ()=>{
+  if(!isAdmin){showToast('Solo administradores pueden crear palets','err');return;}
+  g('n-num').value='';
+  g('cli-dl').innerHTML=[...new Set(DB.map(p=>p.cliente))].map(c=>`<option value="${c}">`).join('');
+  ['n-cli','n-pc','n-pl','n-ac','n-me','n-tr','n-ob'].forEach(id=>g(id).value='');
+  g('n-ch').value='';
+  openOv('ov-nuevo');
+};
+window.crearPalet = async ()=>{
+  if(!isAdmin) return;
+  const v=id=>g(id).value.trim();
+  const num=v('n-num'),cli=v('n-cli'),pc=v('n-pc'),pl=v('n-pl'),ac=v('n-ac'),me=v('n-me'),ch=parseInt(v('n-ch'))||0;
+  if(!num||!cli||!ac||!me||!ch){alert('Rellena los campos obligatorios');return;}
+  setSyncState('sync');
+  try{
+    await addDoc(paletsCol,{num,cliente:cli,pedCli:pc,pedLib:pl,acabado:ac,medida:me,tratamiento:v('n-tr'),obs:v('n-ob'),chapasEntrada:ch,chapasOk:0,chapasDevolucion:0,chapasChatarra:0,estado:'abierto',fechaEntrada:new Date().toLocaleDateString('es-ES'),fechaCierre:null,chapasCierre:null,diferencia:null,fechaCreacion:serverTimestamp()});
+    closeOv('ov-nuevo');showToast('Palet creado');setSyncState('ok');
+  }catch(e){setSyncState('error');showToast('Error al crear','err');}
+};
+
+// ══════════════════════════════════════
+// CIERRE
+// ══════════════════════════════════════
+window.abrirCierre = (fid)=>{
+  if(!isAdmin&&!isUser) return;
+  cierreId=fid;
+  const p=DB.find(x=>x.firestoreId===fid);
+  g('ci-info').innerHTML=`<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:6px"><b style="color:var(--sp-navy)">${p.num}</b><span>${p.cliente}</span></div><div style="display:flex;gap:12px;flex-wrap:wrap"><span>Entrada: <b>${p.chapasEntrada}</b></span><span style="color:var(--sp-ok)">OK: <b>${p.chapasOk}</b></span><span style="color:var(--sp-dev)">Dev: <b>${p.chapasDevolucion}</b></span><span style="color:var(--sp-danger)">Chat: <b>${p.chapasChatarra}</b></span></div>`;
+  g('ci-inp').value='';g('ci-res').style.display='none';
+  openOv('ov-cierre');
+};
+window.confirmarCierre = async ()=>{
+  if(!isAdmin&&!isUser) return;
+  const p=DB.find(x=>x.firestoreId===cierreId);
+  const v=parseInt(g('ci-inp').value);
+  if(isNaN(v)||v<0){alert('Introduce el total');return;}
+  const diff=p.chapasEntrada-v;
+  setSyncState('sync');
+  try{
+    await updateDoc(doc(db,'palets',cierreId),{chapasCierre:v,diferencia:diff,fechaCierre:new Date().toLocaleDateString('es-ES'),estado:diff===0?'cerrado_ok':'cerrado_diff'});
+    const res=g('ci-res');res.style.display='block';
+    if(diff===0){res.style.cssText='background:var(--sp-ok-bg);color:var(--sp-ok);padding:9px 12px;border-radius:7px;font-size:12px;font-weight:600;border:1px solid #86efac;display:block';res.innerHTML='<i class="ti ti-circle-check"></i> ¡Cuadra perfectamente!';}
+    else{res.style.cssText='background:var(--sp-danger-bg);color:var(--sp-danger);padding:9px 12px;border-radius:7px;font-size:12px;font-weight:600;border:1px solid #fca5a5;display:block';res.innerHTML=`<i class="ti ti-alert-triangle"></i> Faltan <b>${Math.abs(diff)}</b> chapas.`;}
+    showToast(diff===0?'Cerrado OK':'Cerrado con diferencia',diff===0?'ok':'err');
+    setTimeout(()=>closeOv('ov-cierre'),1600);setSyncState('ok');
+  }catch(e){setSyncState('error');showToast('Error','err');}
+};
+
+// ══════════════════════════════════════
+// ELIMINAR
+// ══════════════════════════════════════
+window.eliminar = async (fid)=>{
+  if(!isAdmin){showToast('Sin permisos','err');return;}
+  if(!confirm('¿Eliminar este palet?')) return;
+  setSyncState('sync');
+  try{ await deleteDoc(doc(db,'palets',fid)); showToast('Palet eliminado'); setSyncState('ok'); }
+  catch(e){ setSyncState('error'); showToast('Error','err'); }
+};
+
+// ══════════════════════════════════════
+// EDITAR PALET
+// ══════════════════════════════════════
+window.abrirEditar = (fid)=>{
+  const p=DB.find(x=>x.firestoreId===fid); if(!p) return;
+  g('e-fid').value=fid; g('e-cli').value=p.cliente||''; g('e-num').value=p.num||'';
+  g('e-pc').value=p.pedCli||''; g('e-pl').value=p.pedLib||'';
+  g('e-ac').value=p.acabado||''; g('e-me').value=p.medida||'';
+  g('e-tr').value=p.tratamiento||''; g('e-ch').value=p.chapasEntrada||0;
+  g('e-ok').value=p.chapasOk||0; g('e-dev').value=p.chapasDevolucion||0;
+  g('e-chat').value=p.chapasChatarra||0; g('e-est').value=p.estado||'abierto';
+  g('e-ob').value=p.obs||'';
+  openOv('ov-editar');
+};
+window.guardarEdicion = async ()=>{
+  const fid=g('e-fid').value;
+  const cli=g('e-cli').value.trim(), num=g('e-num').value.trim();
+  if(!cli||!num){alert('Cliente y Nº palet son obligatorios');return;}
+  const chOk=parseInt(g('e-ok').value)||0, chDev=parseInt(g('e-dev').value)||0, chChat=parseInt(g('e-chat').value)||0, chEnt=parseInt(g('e-ch').value)||0;
+  setSyncState('sync');
+  try{
+    await updateDoc(doc(db,'palets',fid),{
+      cliente:cli,num,pedCli:g('e-pc').value.trim(),pedLib:g('e-pl').value.trim(),
+      acabado:g('e-ac').value.trim(),medida:g('e-me').value.trim(),
+      tratamiento:g('e-tr').value.trim(),obs:g('e-ob').value.trim(),
+      chapasEntrada:chEnt,chapasOk:chOk,chapasDevolucion:chDev,chapasChatarra:chChat,
+      estado:g('e-est').value,diferencia:chEnt-(chOk+chDev+chChat)
+    });
+    closeOv('ov-editar'); showToast('Palet actualizado'); setSyncState('ok');
+  }catch(e){setSyncState('error');showToast('Error al guardar','err');}
+};
+
+// ══════════════════════════════════════
+// OF — ahora con QR en lugar de código de barras
+// ══════════════════════════════════════
+window.verOF = (fid)=>{
+  try { _verOFInner(fid); } catch(e) { console.error('Error abriendo OF:', e); showToast('Error al abrir la OF — revisa la consola','err'); }
+};
+function _verOFInner(fid){
+  const p=DB.find(x=>x.firestoreId===fid); if(!p) return;
+  const proc=p.chapasOk+p.chapasDevolucion+p.chapasChatarra;
+  const falta=Math.max(0,p.chapasEntrada-proc);
+  g('of-titulo').textContent=`OF — ${p.num}`;
+  const estado=p.estado==='cerrado_ok'?'Cerrado OK':p.estado==='cerrado_diff'?`Cerrado — faltan ${Math.abs(p.diferencia||0)} chapas`:`En proceso — pendiente: ${falta}`;
+  g('of-body').innerHTML=`<div class="of-doc">
+    <div class="of-hd"><span class="of-hl">Grupo Sopena — Orden de fabricación</span><span class="of-hr">${new Date().toLocaleDateString('es-ES')}</span></div>
+    <div class="of-r"><div class="of-k">Nº palet</div><div class="of-v mono">${p.num}</div></div>
+    <div class="of-r"><div class="of-k">Nº pedido cliente</div><div class="of-v">${p.pedCli||'—'}</div></div>
+    <div class="of-r"><div class="of-k">Nº pedido Libra</div><div class="of-v">${p.pedLib||'—'}</div></div>
+    <div class="of-r"><div class="of-k">Cliente</div><div class="of-v">${p.cliente}</div></div>
+    <div class="of-r"><div class="of-k">Acabado</div><div class="of-v">${p.acabado}</div></div>
+    <div class="of-r"><div class="of-k">Medida</div><div class="of-v">${p.medida}</div></div>
+    <div class="of-r"><div class="of-k">Tratamiento</div><div class="of-v">${p.tratamiento||'—'}</div></div>
+    <div class="of-r"><div class="of-k">Fecha entrada</div><div class="of-v">${p.fechaEntrada}</div></div>
+    <div class="of-r"><div class="of-k">Total chapas entrada</div><div class="of-v" style="font-weight:700">${p.chapasEntrada}</div></div>
+    <div class="of-r row-ok"><div class="of-k">Chapas OK</div><div class="of-v">${p.chapasOk}</div></div>
+    <div class="of-r row-dev"><div class="of-k">Devolución cliente</div><div class="of-v">${p.chapasDevolucion}</div></div>
+    <div class="of-r row-chat"><div class="of-k">Chatarra</div><div class="of-v">${p.chapasChatarra}</div></div>
+    <div class="of-r"><div class="of-k">Estado</div><div class="of-v">${estado}</div></div>
+    ${(p.registrosTiempo&&p.registrosTiempo.length>0)?`<div class="of-r" style="background:#eff6ff"><div class="of-k" style="color:#1d4ed8">Total horas</div><div class="of-v" style="color:#1a3a6b;font-weight:700">${p.registrosTiempo.reduce((s,r)=>s+(parseFloat(r.horas)||0),0).toFixed(2)}h — ${p.registrosTiempo.length} registro${p.registrosTiempo.length!==1?'s':''}</div></div>`:''}
+    ${p.obs?`<div class="of-r"><div class="of-k">Observaciones</div><div class="of-v">${p.obs}</div></div>`:''}
+    <div class="of-qr-section">
+      <div class="of-qr-lbl">Código QR — Nº Palet</div>
+      <div id="qr-of-container"></div>
+      <div style="font-size:10px;color:var(--sp-muted);margin-top:8px">${p.num} · ${p.cliente}</div>
+    </div>
+  </div>`;
+
+  g('of-dl').onclick=()=>descargarOF(fid);
+  const eb=g('of-edit-btn');
+  if(eb){ eb.style.display=(isAdmin||isUser)?'':'none'; eb.onclick=()=>{closeOv('ov-of');abrirEditar(fid);}; }
+  openOv('ov-of');
+
+  // Generar QR del palet (con reintentos por si la librería tarda en cargar)
+  const renderQrOF = (intentos) => {
+    const cont=g('qr-of-container'); if(!cont) return;
+    if(typeof QRCode==='undefined') {
+      if(intentos>0){ setTimeout(()=>renderQrOF(intentos-1),300); return; }
+      cont.innerHTML=`<div style="width:120px;height:120px;background:#f4f6fb;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--sp-muted);text-align:center;padding:8px">${p.num}<br><span style="font-size:8px">(QR no disponible)</span></div>`;
+      return;
+    }
+    cont.innerHTML='';
+    const qrData=JSON.stringify({num:p.num,cliente:p.cliente,pedCli:p.pedCli||'',pedLib:p.pedLib||'',acabado:p.acabado,medida:p.medida});
+    try{
+      new QRCode(cont,{text:qrData,width:120,height:120,colorDark:'#1a3a6b',colorLight:'#fafbfd',correctLevel:QRCode.CorrectLevel.H});
+    }catch(e){
+      console.warn('Error generando QR OF',e);
+      cont.innerHTML=`<div style="width:120px;height:120px;background:#f4f6fb;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--sp-muted)">${p.num}</div>`;
+    }
+  };
+  setTimeout(()=>renderQrOF(5), 200);
+};
+
+function descargarOF(fid){
+  const p=DB.find(x=>x.firestoreId===fid); if(!p) return;
+  const proc=p.chapasOk+p.chapasDevolucion+p.chapasChatarra;
+  const pendiente=Math.max(0,p.chapasEntrada-proc);
+  const estadoTxt=p.estado==='cerrado_ok'?'✔ CERRADO OK — Cuadra exactamente':p.estado==='cerrado_diff'?`⚠ CERRADO CON DIFERENCIA — Faltan ${Math.abs(p.diferencia||0)} chapas`:`● EN PROCESO — Pendiente: ${pendiente} chapas`;
+  const estadoColor=p.estado==='cerrado_ok'?'#15803d':p.estado==='cerrado_diff'?'#b91c1c':'#b45309';
+
+  // Generar QR como data URL para la descarga
+  let qrDataUrl='';
+  try{
+    const tmpCanvas=document.createElement('canvas');
+    const tmpDiv=document.createElement('div'); tmpDiv.style.position='absolute'; tmpDiv.style.left='-9999px'; document.body.appendChild(tmpDiv);
+    const qrData=JSON.stringify({num:p.num,cliente:p.cliente,pedCli:p.pedCli||'',pedLib:p.pedLib||'',acabado:p.acabado,medida:p.medida});
+    new QRCode(tmpDiv,{text:qrData,width:150,height:150,colorDark:'#1a3a6b',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.H});
+    setTimeout(()=>{
+      const img=tmpDiv.querySelector('img')||tmpDiv.querySelector('canvas');
+      if(img) qrDataUrl=img.tagName==='IMG'?img.src:img.toDataURL();
+      document.body.removeChild(tmpDiv);
+      _descargarHTML(p,estadoTxt,estadoColor,pendiente,qrDataUrl);
+    },300);
+    return;
+  }catch(e){ _descargarHTML(p,estadoTxt,estadoColor,pendiente,''); }
+}
+
+function _descargarHTML(p,estadoTxt,estadoColor,pendiente,qrDataUrl){
+  const html=`<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><title>OF — ${p.num} — ${p.cliente}</title>
+<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Segoe UI',Arial,sans-serif;color:#1a2540;background:#fff}@page{size:A4;margin:18mm 14mm}.page{max-width:720px;margin:0 auto;padding:24px}.hd{background:#1a3a6b;color:#fff;padding:18px 24px;border-radius:8px 8px 0 0;display:flex;justify-content:space-between;align-items:center}.hd-company{font-size:18px;font-weight:700}.hd-sub{font-size:10px;color:#93c5fd;letter-spacing:1.5px;text-transform:uppercase}.hd-of{font-size:22px;font-weight:700}.hd-date{font-size:11px;color:#93c5fd;margin-top:3px;text-align:right}.info-grid{border:1px solid #c7d8f0;border-top:none}.info-k{padding:9px 14px;font-size:11px;font-weight:600;color:#5a7099;text-transform:uppercase;letter-spacing:0.5px;background:#f4f6fb;border-bottom:1px solid #e8eff8;border-right:1px solid #e8eff8;width:46%;display:inline-block;vertical-align:top}.info-v{padding:9px 14px;font-size:12px;font-weight:500;background:#fff;border-bottom:1px solid #e8eff8;display:inline-block;vertical-align:top;width:54%}.info-row{display:flex;border-bottom:1px solid #e8eff8}.results{display:flex;border:1px solid #c7d8f0;border-top:none}.res-cell{flex:1;padding:14px;text-align:center;border-right:1px solid #e8eff8}.res-cell:last-child{border-right:none}.res-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.7px;margin-bottom:6px}.res-val{font-size:28px;font-weight:700}.r-entrada{background:#eff6ff}.r-entrada .res-lbl{color:#2563b0}.r-entrada .res-val{color:#1a3a6b}.r-ok{background:#dcfce7}.r-ok .res-lbl{color:#15803d}.r-ok .res-val{color:#15803d}.r-dev{background:#ffedd5}.r-dev .res-lbl{color:#c2410c}.r-dev .res-val{color:#c2410c}.r-chat{background:#fee2e2}.r-chat .res-lbl{color:#b91c1c}.r-chat .res-val{color:#b91c1c}.status-bar{padding:12px 18px;font-size:13px;font-weight:700;border:1px solid #c7d8f0;border-top:none;border-radius:0 0 8px 8px}.qr-section{margin-top:20px;text-align:center;padding:16px;border:1px solid #c7d8f0;border-radius:8px;background:#fafbfd}.qr-lbl{font-size:9px;font-weight:700;color:#5a7099;text-transform:uppercase;letter-spacing:0.7px;margin-bottom:10px}.footer{margin-top:20px;padding-top:12px;border-top:1px solid #e8eff8;display:flex;justify-content:space-between;font-size:10px;color:#9ca3af}@media print{button{display:none}}</style>
+</head><body><div class="page">
+<div class="hd"><div><div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><div style="width:36px;height:36px;background:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 44 44" fill="none" width="26" height="26"><rect x="4" y="6" width="24" height="4" rx="2" fill="#1a3a6b"/><rect x="4" y="13" width="18" height="4" rx="2" fill="#1a3a6b"/><rect x="4" y="20" width="24" height="4" rx="2" fill="#1a3a6b"/><rect x="4" y="27" width="14" height="4" rx="2" fill="#1a3a6b"/><rect x="30" y="13" width="10" height="22" rx="2" fill="#2563b0"/></svg></div><div class="hd-company">Grupo Sopena</div></div><div class="hd-sub">Control de chapas</div></div><div><div class="hd-of">OF — ${p.num}</div><div class="hd-date">Emitida el ${new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'long',year:'numeric'})}</div></div></div>
+<div class="info-grid">
+  <div class="info-row"><div class="info-k">Nº Palet</div><div class="info-v" style="font-family:monospace;font-weight:700;color:#1a3a6b">${p.num}</div></div>
+  <div class="info-row"><div class="info-k">Cliente</div><div class="info-v">${p.cliente}</div></div>
+  <div class="info-row"><div class="info-k">Nº Pedido cliente</div><div class="info-v">${p.pedCli||'—'}</div></div>
+  <div class="info-row"><div class="info-k">Nº Pedido Libra</div><div class="info-v">${p.pedLib||'—'}</div></div>
+  <div class="info-row"><div class="info-k">Acabado</div><div class="info-v">${p.acabado}</div></div>
+  <div class="info-row"><div class="info-k">Medida</div><div class="info-v">${p.medida}</div></div>
+  <div class="info-row"><div class="info-k">Tratamiento</div><div class="info-v">${p.tratamiento||'—'}</div></div>
+  <div class="info-row"><div class="info-k">Fecha entrada</div><div class="info-v">${p.fechaEntrada||'—'}</div></div>
+  ${p.fechaCierre?`<div class="info-row"><div class="info-k">Fecha cierre</div><div class="info-v">${p.fechaCierre}</div></div>`:''}
+</div>
+<div class="results">
+  <div class="res-cell r-entrada"><div class="res-lbl">Chapas entrada</div><div class="res-val">${p.chapasEntrada}</div></div>
+  <div class="res-cell r-ok"><div class="res-lbl">Chapas OK</div><div class="res-val">${p.chapasOk}</div></div>
+  <div class="res-cell r-dev"><div class="res-lbl">Dev. cliente</div><div class="res-val">${p.chapasDevolucion}</div></div>
+  <div class="res-cell r-chat"><div class="res-lbl">Chatarra</div><div class="res-val">${p.chapasChatarra}</div></div>
+</div>
+<div class="status-bar" style="background:${estadoColor}15;color:${estadoColor};border-color:${estadoColor}40">${estadoTxt}</div>
+<div class="qr-section">
+  <div class="qr-lbl">Código QR — Nº Palet</div>
+  ${qrDataUrl?`<img src="${qrDataUrl}" width="150" height="150" style="border-radius:4px" alt="${p.num}">`:
+    `<div style="width:150px;height:150px;background:#f4f6fb;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;color:#5a7099">${p.num}</div>`}
+  <div style="font-size:11px;color:#5a7099;margin-top:8px">${p.num} · ${p.cliente}</div>
+</div>
+${p.obs?`<div style="margin-top:16px;padding:12px 16px;background:#fef9ec;border:1px solid #fcd34d;border-radius:8px;font-size:12px;color:#78350f"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;color:#92400e">Observaciones</div>${p.obs}</div>`:''}
+<div class="footer"><span>Grupo Sopena — Control de Chapas</span><span>OF generada el ${new Date().toLocaleDateString('es-ES')} a las ${new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}</span></div>
+</div></body></html>`;
+  const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`OF_${p.num}_${p.cliente.replace(/\s+/g,'_')}_${new Date().toISOString().slice(0,10)}.html`;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(a.href);
+}
+
+// ══════════════════════════════════════
+// CLIENTES
+// ══════════════════════════════════════
+function renderCli(){
+  if(!isAdmin&&!isUser) return;
+  const c=g('cli-list');
+  if(!DB.length){c.innerHTML=`<div class="empty"><i class="ti ti-users"></i><p>No hay clientes</p></div>`;return;}
+  const clientes={};
+  DB.forEach(p=>{if(!clientes[p.cliente])clientes[p.cliente]=[];clientes[p.cliente].push(p);});
+  c.innerHTML=Object.entries(clientes).map(([nombre,list])=>{
+    const tE=list.reduce((s,p)=>s+p.chapasEntrada,0),tO=list.reduce((s,p)=>s+p.chapasOk,0),tD=list.reduce((s,p)=>s+p.chapasDevolucion,0),tC=list.reduce((s,p)=>s+p.chapasChatarra,0);
+    const falta=Math.max(0,tE-(tO+tD+tC));
+    const ini=nombre.split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase();
+    return `<div class="cli-block">
+      <div class="cli-hd">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="cli-av">${ini}</div>
+          <div><div style="font-size:13px;font-weight:600;color:var(--sp-navy)">${nombre}</div>
+          <div class="cli-kpis"><span class="cli-k">Entrada: <b>${tE}</b></span><span class="cli-k" style="color:var(--sp-ok)">OK: <b>${tO}</b></span><span class="cli-k" style="color:var(--sp-dev)">Dev: <b>${tD}</b></span><span class="cli-k" style="color:var(--sp-danger)">Chat: <b>${tC}</b></span><span class="cli-k" style="color:${falta>0?'var(--sp-warn)':'var(--sp-ok)'}">Pendiente: <b>${falta}</b></span></div></div>
+        </div>
+        <span style="font-size:11px;color:var(--sp-muted)">${list.length} palets</span>
+      </div>
+      <div class="tw"><table><thead><tr><th>Nº palet</th><th>Ped. cliente</th><th>Ped. Libra</th><th>Acabado</th><th>Medida</th><th>Entrada</th><th>OK</th><th>Dev.</th><th>Chatarra</th><th>Pendiente</th><th>Estado</th><th>OF</th></tr></thead><tbody>
+        ${list.map(p=>{const pp=p.chapasOk+p.chapasDevolucion+p.chapasChatarra;const pend=Math.max(0,p.chapasEntrada-pp);return `<tr><td class="mono">${p.num}</td><td>${p.pedCli||'—'}</td><td>${p.pedLib||'—'}</td><td>${p.acabado}</td><td>${p.medida}</td><td style="font-weight:600">${p.chapasEntrada}</td><td style="color:var(--sp-ok);font-weight:600">${p.chapasOk}</td><td style="color:var(--sp-dev);font-weight:600">${p.chapasDevolucion}</td><td style="color:var(--sp-danger);font-weight:600">${p.chapasChatarra}</td><td style="color:${pend>0?'var(--sp-warn)':'var(--sp-ok)'};font-weight:600">${pend}</td><td>${badge(p)}</td><td><button class="btn btn-sm btn-ico binfo" onclick="verOF('${p.firestoreId}')"><i class="ti ti-file-description" style="font-size:12px"></i></button></td></tr>`;}).join('')}
+      </tbody></table></div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════
+// ████  CONTROL DE TIEMPOS  ████
+// ══════════════════════════════════════════════════════
+
+async function persistirOperarios(){
+  try {
+    await setDoc(doc(db,'tiempos_meta','operarios'), { lista: OPERARIOS, actualizado: serverTimestamp() });
+  } catch(e){ console.warn('Error guardando operarios', e); showToast('Error al sincronizar operarios','err'); }
+}
+async function persistirHistorial(){
+  try {
+    await setDoc(doc(db,'tiempos_meta','historial'), { lista: HISTORIAL, actualizado: serverTimestamp() });
+  } catch(e){ console.warn('Error guardando historial', e); showToast('Error al sincronizar historial','err'); }
+}
+
+// ── Sub-tabs ──
+window.switchSubTab = (id)=>{
+  document.querySelectorAll('.sub-tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.sub-panel').forEach(p=>p.classList.remove('active'));
+  g('sub-'+id).classList.add('active');
+  const tabs=['monitor','qr','historial','etiquetas','productividad'];
+  document.querySelectorAll('.sub-tab')[tabs.indexOf(id)]?.classList.add('active');
+  if(id==='etiquetas') renderEtiquetas();
+  if(id==='historial'){ cargarFiltroHistorial(); renderHistorial(); }
+  if(id==='productividad'){ window.renderProductividad(); }
+  if(id!=='qr'&&scannerActivo) detenerCamara();
+};
+
+// ── Nuevo operario ──
+window.abrirModalOperario = ()=>{
+  g('op-nombre').value=''; g('op-codigo').value=`OP-${String(OPERARIOS.length+1).padStart(3,'0')}`; g('op-tarea').value='';
+  openOv('ov-operario');
+};
+window.guardarOperario = ()=>{
+  const nombre=g('op-nombre').value.trim(), codigo=g('op-codigo').value.trim();
+  if(!nombre||!codigo){showToast('Nombre y código son obligatorios','err');return;}
+  if(OPERARIOS.find(o=>o.codigo===codigo)){showToast('El código ya existe','err');return;}
+  OPERARIOS.push({id:Date.now(),nombre,codigo,depto:g('op-depto').value,tarea:g('op-tarea').value.trim()||'Sin asignar',estado:'libre',entrada:null,tiempoActivo:0,tiempoPausa:0,pausaInicio:null});
+  persistirOperarios(); closeOv('ov-operario'); renderMonitor(); actualizarKpisTiempos();
+  showToast('Operario añadido');
+};
+
+// ── Acciones de tiempo ──
+function accionFichaje(opId){
+  const op=OPERARIOS.find(o=>o.id===opId); if(!op) return;
+  const now=Date.now();
+  if(op.estado==='libre'){
+    op.estado='activo'; op.entrada=now; op.tiempoActivo=0; op.tiempoPausa=0; op.pausaInicio=null; op.pausas=[];
+    fichajosHoy.push({hora:horaStr(),nombre:op.nombre,codigo:op.codigo,accion:'ENTRADA'});
+    showToast(`Entrada registrada — ${op.nombre}`);
+    persistirOperarios(); renderMonitor(); actualizarKpisTiempos(); renderLogFichajes();
+  } else if(op.estado==='activo'){
+    // Pedir motivo de la pausa antes de pausar
+    g('mp-opid').value = opId;
+    g('mp-motivo-sel').value = '';
+    g('mp-motivo-texto').value = '';
+    g('mp-motivo-otro').style.display = 'none';
+    openOv('ov-motivo-pausa');
+    return;
+  } else if(op.estado==='pausado'){
+    const seg=Math.floor((now-op.pausaInicio)/1000);
+    op.tiempoPausa+=seg; 
+    // Cerrar la pausa actual con su duración real
+    if(op.pausas && op.pausas.length){
+      const ultimaPausa = op.pausas[op.pausas.length-1];
+      if(ultimaPausa && !ultimaPausa.fin){
+        ultimaPausa.fin = horaStr();
+        ultimaPausa.duracionSeg = seg;
+      }
+    }
+    op.pausaInicio=null; op.estado='activo';
+    fichajosHoy.push({hora:horaStr(),nombre:op.nombre,codigo:op.codigo,accion:'REANUDACIÓN'});
+    showToast(`Reanudado — ${op.nombre}`);
+    persistirOperarios(); renderMonitor(); actualizarKpisTiempos(); renderLogFichajes();
+  }
+}
+window.accionFichaje=accionFichaje;
+
+window.confirmarPausaConMotivo = () => {
+  const opId = parseInt(g('mp-opid').value);
+  const op = OPERARIOS.find(o=>o.id===opId); if(!op) return;
+  const motivoSel = g('mp-motivo-sel').value;
+  const motivoTexto = g('mp-motivo-texto').value.trim();
+  if(!motivoSel){ showToast('Selecciona un motivo para la pausa','err'); return; }
+  const motivo = motivoSel==='Otro' ? (motivoTexto || 'Otro (sin especificar)') : motivoSel;
+  const now=Date.now();
+  op.estado='pausado'; op.pausaInicio=now;
+  if(!op.pausas) op.pausas=[];
+  op.pausas.push({inicio:horaStr(),fin:null,motivo,duracionSeg:0});
+  fichajosHoy.push({hora:horaStr(),nombre:op.nombre,codigo:op.codigo,accion:'PAUSA',motivo});
+  showToast(`Pausa iniciada — ${op.nombre} (${motivo})`,'err');
+  persistirOperarios(); renderMonitor(); actualizarKpisTiempos(); renderLogFichajes();
+  closeOv('ov-motivo-pausa');
+};
+
+window.registrarSalida = (opId)=>{
+  const op=OPERARIOS.find(o=>o.id===opId); if(!op||op.estado==='libre') return;
+  const now=Date.now();
+  let pausaSeg=op.tiempoPausa;
+  // Si está pausado en el momento de la salida, cerramos esa última pausa también
+  if(op.estado==='pausado'&&op.pausaInicio){
+    const segUltima=Math.floor((now-op.pausaInicio)/1000);
+    pausaSeg+=segUltima;
+    if(op.pausas&&op.pausas.length){
+      const ultimaPausa=op.pausas[op.pausas.length-1];
+      if(ultimaPausa&&!ultimaPausa.fin){ ultimaPausa.fin=horaStr(); ultimaPausa.duracionSeg=segUltima; }
+    }
+  }
+  const totalSeg=Math.floor((now-op.entrada)/1000);
+  const efectivoSeg=Math.max(0,totalSeg-pausaSeg);
+  HISTORIAL.push({
+    id: Date.now()+Math.random(),
+    fecha:new Date().toLocaleDateString('es-ES'),
+    nombre:op.nombre, codigo:op.codigo,
+    entrada:new Date(op.entrada).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}),
+    salida:horaStr(),
+    totalSeg, pausaSeg, efectivoSeg, tarea:op.tarea,
+    pausas: op.pausas ? [...op.pausas] : []
+  });
+  fichajosHoy.push({hora:horaStr(),nombre:op.nombre,codigo:op.codigo,accion:'SALIDA'});
+  op.estado='libre'; op.entrada=null; op.tiempoActivo=0; op.tiempoPausa=0; op.pausaInicio=null; op.pausas=[];
+  persistirOperarios(); persistirHistorial();
+  renderMonitor(); actualizarKpisTiempos(); renderLogFichajes();
+  showToast(`Salida registrada — ${op.nombre}`);
+};
+
+// ── Monitor ──
+function renderMonitor(){
+  const grid=g('monitor-grid'), empty=g('monitor-empty');
+  if(!OPERARIOS.length){grid.innerHTML='';empty.style.display='block';renderResumenDia();return;}
+  empty.style.display='none';
+  grid.innerHTML=OPERARIOS.map(op=>{
+    const ini=op.nombre.split(' ').map(n=>n[0]||'').join('').toUpperCase().slice(0,2);
+    const estadoClass=op.estado==='activo'?'activo':op.estado==='pausado'?'pausado':'';
+    const badgeHtml=op.estado==='activo'
+      ?`<span class="badge bok"><span class="dot dok"></span>Activo</span>`
+      :op.estado==='pausado'
+      ?`<span class="badge bprog"><span class="dot dprog"></span>Pausa</span>`
+      :`<span class="badge bopen">Libre</span>`;
+    const btnPrincipal=op.estado==='libre'
+      ?`<button class="btn bsuccess btn-sm" onclick="accionFichaje(${op.id})"><i class="ti ti-player-play" style="font-size:11px"></i> Entrada</button>`
+      :op.estado==='activo'
+      ?`<button class="btn btn-sm" style="color:var(--sp-warn);border-color:#fcd34d" onclick="accionFichaje(${op.id})"><i class="ti ti-player-pause" style="font-size:11px"></i> Pausa</button>`
+      :`<button class="btn binfo btn-sm" onclick="accionFichaje(${op.id})"><i class="ti ti-player-play" style="font-size:11px"></i> Reanudar</button>`;
+    const btnSalida=op.estado!=='libre'
+      ?`<button class="btn bdanger btn-sm" onclick="registrarSalida(${op.id})"><i class="ti ti-player-stop" style="font-size:11px"></i> Salida</button>`:
+      `<button class="btn btn-sm bdanger" onclick="eliminarOperario(${op.id})" title="Eliminar operario"><i class="ti ti-trash" style="font-size:11px"></i></button>`;
+    const seg=calcSegActivos(op);
+    const entradaStr=op.entrada?new Date(op.entrada).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}):'—';
+    return `<div class="mon-card ${estadoClass}">
+      <div class="mon-hd">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="mon-av">${ini}</div>
+          <div><div class="mon-nombre">${op.nombre}</div><div class="mon-codigo">${op.codigo} · ${op.depto}</div></div>
+        </div>
+        ${badgeHtml}
+      </div>
+      <div class="mon-body">
+        <div style="font-size:10px;color:var(--sp-muted)">Tarea: ${op.tarea}</div>
+        <div class="mon-timer ${op.estado==='activo'?'running':op.estado==='pausado'?'paused':''}" id="mon-timer-${op.id}">${fmtSeg(seg)}</div>
+        <div class="mon-meta">Entrada: ${entradaStr}</div>
+        <div class="mon-actions">${btnPrincipal}${btnSalida}</div>
+      </div>
+    </div>`;
+  }).join('');
+  renderResumenDia();
+}
+
+function renderResumenDia(){
+  const tbody=g('monitor-resumen-tbody'); if(!tbody) return;
+  if(!OPERARIOS.length){tbody.innerHTML=`<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--sp-muted)">Sin operarios</td></tr>`;return;}
+  const now=Date.now();
+  tbody.innerHTML=OPERARIOS.map(op=>{
+    const totalSeg=op.entrada?Math.floor((now-op.entrada)/1000):0;
+    let pausaSeg=op.tiempoPausa;
+    if(op.estado==='pausado'&&op.pausaInicio) pausaSeg+=Math.floor((now-op.pausaInicio)/1000);
+    const efSeg=Math.max(0,totalSeg-pausaSeg);
+    const entradaStr=op.entrada?new Date(op.entrada).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}):'—';
+    const pausaStr=op.pausaInicio?new Date(op.pausaInicio).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}):'—';
+    const estadoBadge=op.estado==='activo'?`<span class="badge bok"><span class="dot dok"></span>Activo</span>`:op.estado==='pausado'?`<span class="badge bprog"><span class="dot dprog"></span>Pausa</span>`:`<span class="badge bopen">Libre</span>`;
+    return `<tr>
+      <td style="font-weight:600">${op.nombre}</td>
+      <td><span class="op-tag">${op.codigo}</span></td>
+      <td>${entradaStr}</td>
+      <td style="color:var(--sp-ok);font-weight:600">${fmtHM(efSeg)}</td>
+      <td style="color:var(--sp-warn);font-weight:600">${fmtHM(pausaSeg)}</td>
+      <td>${op.tarea}</td>
+      <td>${estadoBadge}</td>
+      <td><div style="display:flex;gap:4px">
+        <button class="btn btn-sm btn-ico binfo" title="Fichar" onclick="accionFichaje(${op.id})"><i class="ti ti-clock" style="font-size:11px"></i></button>
+        ${op.estado!=='libre'?`<button class="btn btn-sm btn-ico bdanger" title="Salida" onclick="registrarSalida(${op.id})"><i class="ti ti-player-stop" style="font-size:11px"></i></button>`:''}
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+window.eliminarOperario = (id)=>{
+  if(!confirm('¿Eliminar este operario?')) return;
+  OPERARIOS=OPERARIOS.filter(o=>o.id!==id);
+  persistirOperarios(); renderMonitor(); actualizarKpisTiempos();
+  showToast('Operario eliminado');
+};
+
+window.eliminarFichajeHistorial = (id)=>{
+  if(!confirm('¿Eliminar este registro de fichaje? Esta acción no se puede deshacer.')) return;
+  HISTORIAL = HISTORIAL.filter(h => {
+    const hId = (h.id===undefined||h.id===null) ? null : String(h.id);
+    return hId !== String(id);
+  });
+  persistirHistorial();
+  renderHistorial();
+  actualizarKpisTiempos();
+  showToast('Fichaje eliminado');
+};
+
+// ── Timer global ──
+function iniciarTimerGlobal(){
+  if(timerInterval) clearInterval(timerInterval);
+  timerInterval=setInterval(()=>{
+    OPERARIOS.forEach(op=>{
+      const el=g('mon-timer-'+op.id); if(!el) return;
+      el.textContent=fmtSeg(calcSegActivos(op));
+      el.className='mon-timer '+(op.estado==='activo'?'running':op.estado==='pausado'?'paused':'');
+    });
+    actualizarKpisTiempos();
+  },1000);
+}
+
+function calcSegActivos(op){
+  if(!op.entrada) return 0;
+  const now=Date.now();
+  const total=Math.floor((now-op.entrada)/1000);
+  let pausa=op.tiempoPausa;
+  if(op.estado==='pausado'&&op.pausaInicio) pausa+=Math.floor((now-op.pausaInicio)/1000);
+  return Math.max(0,total-pausa);
+}
+
+function actualizarKpisTiempos(){
+  const activos=OPERARIOS.filter(o=>o.estado==='activo').length;
+  const pausados=OPERARIOS.filter(o=>o.estado==='pausado').length;
+  const elA=g('tm-activos'); if(elA) elA.textContent=activos;
+  const elP=g('tm-pausa'); if(elP) elP.textContent=pausados;
+  const elF=g('tm-fichajes-hoy'); if(elF) elF.textContent=fichajosHoy.length;
+
+  // Horas totales hoy (suma de todos activos + historial del día)
+  let segHoy=OPERARIOS.reduce((s,op)=>s+calcSegActivos(op),0);
+  const hoy=new Date().toLocaleDateString('es-ES');
+  HISTORIAL.filter(h=>h.fecha===hoy).forEach(h=>{ segHoy+=h.efectivoSeg; });
+  const elH=g('tm-horas-hoy'); if(elH) elH.textContent=fmtHM(segHoy);
+
+  // Horas semana (historial)
+  const lunes=getInicioSemana();
+  let segSem=segHoy;
+  HISTORIAL.filter(h=>{
+    const partes=h.fecha.split('/');
+    const d=new Date(+partes[2],+partes[1]-1,+partes[0]);
+    return d>=lunes&&h.fecha!==hoy;
+  }).forEach(h=>{ segSem+=h.efectivoSeg; });
+  const elS=g('tm-horas-sem'); if(elS) elS.textContent=fmtHM(segSem);
+}
+
+function getInicioSemana(){
+  const d=new Date(); const day=d.getDay(); const diff=d.getDate()-day+(day===0?-6:1);
+  return new Date(d.setDate(diff));
+}
+
+// ── Historial ──
+function cargarFiltroHistorial(){
+  const sel=g('hist-op'); if(!sel) return;
+  sel.innerHTML='<option value="">Todos</option>'+[...new Set(HISTORIAL.map(h=>h.codigo))].map(c=>{
+    const op=OPERARIOS.find(o=>o.codigo===c); return `<option value="${c}">${op?op.nombre:c} (${c})</option>`;
+  }).join('');
+  const hoy=new Date().toISOString().slice(0,10);
+  const d7=new Date(); d7.setDate(d7.getDate()-7);
+  const hi=g('hist-desde'); if(hi&&!hi.value) hi.value=d7.toISOString().slice(0,10);
+  const hf=g('hist-hasta'); if(hf&&!hf.value) hf.value=hoy;
+}
+
+function renderHistorial(){
+  const tbody=g('hist-tbody'); if(!tbody) return;
+  const filtOp=g('hist-op')?.value||'';
+  const desde=g('hist-desde')?.value||'';
+  const hasta=g('hist-hasta')?.value||'';
+
+  let rows=[...HISTORIAL].reverse();
+  rows.forEach((r,idx)=>{ if(r.id===undefined||r.id===null) r.id = `legacy-${idx}-${r.fecha}-${r.codigo}`; });
+  if(filtOp) rows=rows.filter(r=>r.codigo===filtOp);
+  if(desde) rows=rows.filter(r=>toDate(r.fecha)>=new Date(desde));
+  if(hasta) rows=rows.filter(r=>toDate(r.fecha)<=new Date(hasta+'T23:59:59'));
+
+  if(!rows.length){tbody.innerHTML=`<tr><td colspan="11" style="text-align:center;padding:2rem;color:var(--sp-muted)">Sin registros</td></tr>`;}
+  else{
+    tbody.innerHTML=rows.map(r=>{
+      const motivos = (r.pausas&&r.pausas.length)
+        ? r.pausas.map(p=>`<div style="font-size:10px;margin-bottom:2px"><span class="descanso-tag">⏸ ${p.motivo||'Sin motivo'}</span> <span style="color:var(--sp-muted)">(${p.inicio||'?'}–${p.fin||'?'}, ${fmtHM(p.duracionSeg||0)})</span></div>`).join('')
+        : (r.pausaSeg>0 ? '<span style="color:var(--sp-muted);font-size:10px">Sin detalle de motivo</span>' : '—');
+      return `<tr id="hist-row-${r.id||''}">
+      <td>${r.fecha}</td>
+      <td style="font-weight:600">${r.nombre}</td>
+      <td><span class="op-tag">${r.codigo}</span></td>
+      <td>${r.entrada}</td>
+      <td>${r.salida}</td>
+      <td>${fmtHM(r.totalSeg)}</td>
+      <td style="color:var(--sp-warn)">${fmtHM(r.pausaSeg)}</td>
+      <td style="color:var(--sp-ok);font-weight:600">${fmtHM(r.efectivoSeg)}</td>
+      <td>${r.tarea||'—'}</td>
+      <td style="max-width:220px">${motivos}</td>
+      <td style="text-align:center"><button class="btn btn-sm btn-ico bdanger" title="Eliminar fichaje" onclick="eliminarFichajeHistorial('${r.id}')"><i class="ti ti-trash" style="font-size:12px"></i></button></td>
+    </tr>`;
+    }).join('');
+  }
+
+  // Resumen por operario
+  const resumen={};
+  HISTORIAL.forEach(r=>{
+    if(!resumen[r.codigo]) resumen[r.codigo]={nombre:r.nombre,count:0,total:0,pausa:0,efectivo:0,ultimo:''};
+    resumen[r.codigo].count++;
+    resumen[r.codigo].total+=r.totalSeg;
+    resumen[r.codigo].pausa+=r.pausaSeg;
+    resumen[r.codigo].efectivo+=r.efectivoSeg;
+    resumen[r.codigo].ultimo=r.fecha;
+  });
+  const rtbody=g('hist-resumen-tbody'); if(!rtbody) return;
+  const entries=Object.values(resumen);
+  if(!entries.length){rtbody.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:1rem;color:var(--sp-muted)">Sin datos</td></tr>`;return;}
+  rtbody.innerHTML=entries.map(r=>`<tr>
+    <td style="font-weight:600">${r.nombre}</td>
+    <td>${r.count}</td>
+    <td>${fmtHM(r.total)}</td>
+    <td style="color:var(--sp-warn)">${fmtHM(r.pausa)}</td>
+    <td style="color:var(--sp-ok);font-weight:600">${fmtHM(r.efectivo)}</td>
+    <td>${r.ultimo}</td>
+  </tr>`).join('');
+}
+window.renderHistorial=renderHistorial;
+
+function toDate(fechaEs){
+  const p=fechaEs.split('/');
+  return new Date(+p[2],+p[1]-1,+p[0]);
+}
+
+// ── Etiquetas QR ──
+function renderEtiquetas(){
+  const grid=g('etiquetas-grid'), empty=g('etiquetas-empty');
+  if(!OPERARIOS.length){grid.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  grid.innerHTML=OPERARIOS.map(op=>`
+    <div class="etiqueta-card">
+      <div class="etiqueta-nombre">${op.nombre}</div>
+      <div class="etiqueta-meta">${op.codigo} · ${op.depto}</div>
+      <div class="etiqueta-qr-box" id="etq-${op.id}"></div>
+      <div style="font-size:10px;color:var(--sp-muted);margin-bottom:8px">${op.tarea}</div>
+      <button class="btn btn-sm binfo" style="width:100%" onclick="imprimirEtiqueta(${op.id})"><i class="ti ti-printer" style="font-size:11px"></i> Imprimir</button>
+    </div>
+  `).join('');
+  OPERARIOS.forEach(op=>{
+    const el=g('etq-'+op.id); if(!el) return;
+    el.innerHTML='';
+    const qrPayload=JSON.stringify({codigo:op.codigo,nombre:op.nombre,depto:op.depto,tarea:op.tarea});
+    try{
+      new QRCode(el,{text:qrPayload,width:130,height:130,colorDark:'#1a3a6b',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.H});
+    }catch(e){el.innerHTML=`<div style="width:130px;height:130px;background:#f4f6fb;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--sp-muted)">${op.codigo}</div>`;}
+  });
+}
+
+window.imprimirEtiqueta = (id)=>{
+  const op=OPERARIOS.find(o=>o.id===id); if(!op) return;
+  const qrEl=g('etq-'+id);
+  const img=qrEl?.querySelector('img')||qrEl?.querySelector('canvas');
+  let src='';
+  if(img) src=img.tagName==='IMG'?img.src:img.toDataURL();
+  const w=window.open('','_blank','width=320,height=420');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>QR ${op.codigo}</title>
+  <style>body{font-family:'Segoe UI',sans-serif;text-align:center;padding:24px;background:#fff}h2{font-size:16px;color:#1a3a6b;margin-bottom:4px}p{font-size:12px;color:#5a7099;margin:2px 0}.note{font-size:10px;color:#9ca3af;margin-top:12px}@media print{body{padding:12px}}</style></head>
+  <body>
+    <h2>${op.nombre}</h2>
+    <p>${op.codigo}</p>
+    <p>${op.depto} · ${op.tarea}</p>
+    <div style="margin:16px auto;display:inline-block;padding:10px;border:1px solid #c7d8f0;border-radius:8px">
+      ${src?`<img src="${src}" width="150" height="150" alt="${op.codigo}">`:`<div style="width:150px;height:150px;background:#f4f6fb;display:flex;align-items:center;justify-content:center;font-size:11px;color:#5a7099">${op.codigo}</div>`}
+    </div>
+    <div class="note">Grupo Sopena · Escanea para fichar</div>
+    <script>setTimeout(()=>window.print(),400)<\/script>
+  </body></html>`);
+};
+
+window.imprimirTodasEtiquetas = ()=>{
+  if(!OPERARIOS.length){showToast('Sin operarios','err');return;}
+  OPERARIOS.forEach(op=>window.imprimirEtiqueta(op.id));
+};
+
+// ── Lector QR ──
+window.iniciarCamara = ()=>{
+  if(scannerActivo) return;
+  g('qr-placeholder').style.display='none';
+  g('qr-cam-inner').style.display='block';
+  g('qr-cam-inner').innerHTML='<div id="qr-reader"></div>';
+  g('qr-scan-line').classList.add('on');
+  g('btn-cam-start').style.display='none';
+  g('btn-cam-stop').style.display='inline-flex';
+  try{
+    html5QrCode=new Html5Qrcode('qr-reader');
+    html5QrCode.start({facingMode:'environment'},{fps:10,qrbox:{width:220,height:220}},procesarQRScan,()=>{}).catch(err=>{
+      g('qr-cam-inner').innerHTML=`<div style="padding:20px;text-align:center;font-size:12px;color:var(--sp-danger)">No se pudo acceder a la cámara.<br><small>${err}</small></div>`;
+      g('qr-placeholder').style.display='block';
+    });
+    scannerActivo=true;
+  }catch(e){ g('qr-cam-inner').innerHTML='<div style="padding:20px;color:var(--sp-danger);font-size:12px">Error al iniciar el escáner</div>'; }
+};
+
+window.detenerCamara = ()=>{
+  if(html5QrCode) html5QrCode.stop().catch(()=>{}).finally(()=>{ html5QrCode=null; scannerActivo=false; });
+  scannerActivo=false;
+  g('qr-cam-inner').style.display='none'; g('qr-cam-inner').innerHTML='';
+  g('qr-placeholder').style.display='flex';
+  g('qr-scan-line').classList.remove('on');
+  g('btn-cam-start').style.display='inline-flex'; g('btn-cam-stop').style.display='none';
+};
+
+function procesarQRScan(text){
+  const now=Date.now();
+  if(text===ultimoQR&&now-ultimoQRts<3000) return;
+  ultimoQR=text; ultimoQRts=now;
+  let data={};
+  try{ data=JSON.parse(text); }catch(e){ data={codigo:text}; }
+  const op=OPERARIOS.find(o=>o.codigo===data.codigo||o.nombre===data.nombre);
+  if(!op){ showToast(`Operario no encontrado: ${data.codigo||text}`,'err'); return; }
+  const accionAntes=op.estado==='libre'?'ENTRADA':op.estado==='activo'?'PAUSA':'REANUDACIÓN';
+  accionFichaje(op.id);
+  g('qr-res-nombre').textContent=op.nombre;
+  g('qr-res-codigo').textContent=op.codigo;
+  g('qr-res-accion').textContent=accionAntes;
+  g('qr-res-hora').textContent=horaStr();
+  g('qr-ok-box').classList.add('show');
+}
+
+window.fichajeManual = ()=>{
+  const sel=g('manual-op-sel'); if(!sel) return;
+  sel.innerHTML='<option value="">Selecciona operario...</option>'+OPERARIOS.map(o=>`<option value="${o.id}">${o.nombre} (${o.codigo})</option>`).join('');
+  openOv('ov-manual');
+};
+window.confirmarManual = ()=>{
+  const id=parseInt(g('manual-op-sel').value);
+  if(!id){showToast('Selecciona un operario','err');return;}
+  accionFichaje(id); closeOv('ov-manual');
+};
+
+function renderLogFichajes(){
+  const el=g('log-fichajes'); if(!el) return;
+  if(!fichajosHoy.length){el.innerHTML='<div style="font-size:11px;color:var(--sp-muted);text-align:center;padding:1rem">Sin fichajes hoy</div>';return;}
+  const colorAcc={ENTRADA:'var(--sp-ok)',SALIDA:'var(--sp-danger)',PAUSA:'var(--sp-warn)',REANUDACIÓN:'var(--sp-blue)'};
+  el.innerHTML=[...fichajosHoy].reverse().map(f=>`<div class="fichaje-row">
+    <span style="color:var(--sp-muted)">${f.hora}</span>
+    <span style="font-weight:600">${f.nombre}</span>
+    <span style="color:${colorAcc[f.accion]||'var(--sp-text)'};font-size:10px;font-weight:700">${f.accion}</span>
+  </div>`).join('');
+}
+
+// ── Exportar CSV ──
+window.exportarTiempos = ()=>{
+  if(!HISTORIAL.length){showToast('Sin datos en el historial','err');return;}
+  const headers=['Fecha','Operario','Código','Entrada','Salida','H.trabajo(min)','H.pausa(min)','H.efectivas(min)','Tarea'];
+  const rows=HISTORIAL.map(r=>[r.fecha,r.nombre,r.codigo,r.entrada,r.salida,Math.round(r.totalSeg/60),Math.round(r.pausaSeg/60),Math.round(r.efectivoSeg/60),r.tarea||'']);
+  const csv=[headers,...rows].map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=`tiempos_operarios_${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(a.href);
+  showToast('CSV exportado');
+};
+
+// ── Helpers de formato ──
+function fmtSeg(seg){
+  const h=Math.floor(seg/3600), m=Math.floor((seg%3600)/60), s=seg%60;
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+function fmtHM(seg){
+  return `${Math.floor(seg/3600)}h ${String(Math.floor((seg%3600)/60)).padStart(2,'0')}m`;
+}
+function horaStr(){ return new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit',second:'2-digit'}); }
+
+</script>
+</body>
+</html>
